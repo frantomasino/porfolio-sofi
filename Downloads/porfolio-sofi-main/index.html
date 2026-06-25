@@ -1,0 +1,3118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Studio Arch — Portfolio</title>
+  <meta name="description" content="Estudio de arquitectura — Diseño, proyecto y dirección de obra."/>
+
+
+<!-- ═══════════════════════════════════════
+     🗄️  SUPABASE CONFIG
+═══════════════════════════════════════ -->
+<script>
+  const SUPABASE_URL = 'https://wspouzdlkougxtbgkgyn.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_Vcw-hH2uMnJi2SDBWBFJ1g_cyFiE4Xx';
+
+  // Direct REST API calls (no SDK needed)
+  async function sbFetch(path, options = {}) {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+      ...options,
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': options.prefer || '',
+        ...options.headers,
+      }
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      console.error('Supabase error:', res.status, err);
+      return null;
+    }
+    const text = await res.text();
+    return text ? JSON.parse(text) : null;
+  }
+</script>
+
+<!-- ═══════════════════════════════════════
+     ☁️  CLOUDINARY CONFIG
+     ────────────────────────────────────
+     1. Creá cuenta gratis en cloudinary.com
+     2. En Dashboard copiá tu "Cloud Name"
+     3. Creá un "Upload Preset" sin firmar:
+        Settings → Upload → Add upload preset
+        Signing mode: Unsigned
+        Carpeta sugerida: "portfolio"
+     4. Pegá ambos valores abajo
+═══════════════════════════════════════ -->
+<script>
+  const CLOUDINARY_CLOUD_NAME  = 'df7ksrq2a';   
+  const CLOUDINARY_UPLOAD_PRESET = 'portfolio';     
+</script>
+
+<style>
+/* ─────────────────────────────────────────
+   BASE
+───────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Playfair+Display:ital,wght@0,300;0,400;1,300;1,400&family=DM+Serif+Display:ital@0;1&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Montserrat:wght@300;400&family=Raleway:wght@300;400&family=Inter:wght@300;400&family=Lato:wght@300;400&display=swap');
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  /* ── COLORES — cambiá estos para cambiar toda la paleta ── */
+  --bone:  #F2F0EB;   /* fondo general (crema) */
+  --ink:   #111111;   /* negro — textos principales y botones */
+  --gray:  #888888;   /* gris — textos secundarios */
+  --lgray: #DDDBD6;   /* gris claro — bordes y líneas */
+  --gold:  #C4A265;   /* dorado — color de acento principal */
+  --white: #FFFFFF;   /* blanco */
+  --olive: #5A5E4A;   /* verde oliva — fondo del menú hamburguesa */
+
+  /* ── TIPOGRAFÍAS — cambiá el nombre de la fuente acá ── */
+  --font-display: 'Cormorant Garamond', Georgia, serif; /* títulos grandes */
+  --font-body:    'Inter', system-ui, sans-serif;        /* textos normales */
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html { font-size:16px; scroll-behavior:smooth; -webkit-font-smoothing:antialiased; }
+body { font-family:var(--font-body); background:var(--bone); color:var(--ink); overflow-x:hidden; }
+img  { display:block; max-width:100%; }
+a    { color:inherit; text-decoration:none; }
+button { font-family:inherit; cursor:pointer; }
+::-webkit-scrollbar { width:2px; }
+::-webkit-scrollbar-thumb { background:var(--lgray); }
+
+/* ─── CURSOR ─── */
+.cursor { display:none; }
+.cursor.expanded { width:48px; height:48px; background:transparent; border:1px solid var(--ink); mix-blend-mode:difference; }
+.cursor.light    { background:var(--white); }
+
+/* ─── NAV ─── */
+.nav {
+  position:fixed; top:0; left:0; right:0;
+  padding:1.75rem 3rem;
+  display:flex; align-items:center; justify-content:space-between;
+  z-index:500; mix-blend-mode:difference;
+}
+.nav-logo {
+  font-family:var(--font-display); font-size:1rem; font-weight:300;
+  letter-spacing:.15em; text-transform:uppercase; color:var(--white);
+  transition:opacity .3s;
+}
+.nav-logo:hover { opacity:.6; }
+.nav-right { display:flex; align-items:center; gap:2rem; }
+
+.hamburger { display:flex; flex-direction:column; gap:5px; background:none; border:none; padding:4px; }
+.hamburger span { display:block; width:28px; height:1px; background:var(--white); transform-origin:center; transition:transform .4s var(--ease-out), opacity .3s, width .3s; }
+.hamburger.open span:nth-child(1) { transform:translateY(6px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity:0; width:0; }
+.hamburger.open span:nth-child(3) { transform:translateY(-6px) rotate(-45deg); }
+
+/* ─── MENU OVERLAY ─── */
+.menu-overlay {
+  position:fixed; inset:0; background:var(--olive);
+  z-index:400; display:flex; flex-direction:column;
+  justify-content:flex-end; padding:3rem;
+  opacity:0; pointer-events:none; transition:opacity .5s var(--ease-out);
+}
+.menu-overlay.open { opacity:1; pointer-events:all; }
+.menu-links { display:flex; flex-direction:column; gap:0; margin-bottom:3rem; }
+.menu-link {
+  font-family:var(--font-display); font-size:clamp(3.5rem,9vw,7rem);
+  font-weight:300; line-height:1.1; color:var(--ink);
+  background:none; border:none; text-align:left; padding:.1em 0;
+  overflow:hidden; display:block;
+  transform:translateY(100%); transition:transform .7s var(--ease-out), color .2s;
+}
+.menu-overlay.open .menu-link { transform:translateY(0); }
+.menu-overlay.open .menu-link:nth-child(1) { transition-delay:.05s; }
+.menu-overlay.open .menu-link:nth-child(2) { transition-delay:.10s; }
+.menu-overlay.open .menu-link:nth-child(3) { transition-delay:.15s; }
+.menu-overlay.open .menu-link:nth-child(4) { transition-delay:.20s; }
+.menu-overlay.open .menu-link:nth-child(5) { transition-delay:.25s; }
+.menu-link:hover { color:var(--white); }
+.menu-footer { display:flex; align-items:flex-end; justify-content:space-between; border-top:1px solid rgba(0,0,0,.15); padding-top:2rem; }
+.menu-social { display:flex; gap:2rem; align-items:center; }
+.menu-social a {
+  display:flex; align-items:center; gap:.6rem;
+  font-size:11px; letter-spacing:.2em; text-transform:uppercase;
+  color:var(--ink); opacity:.7;
+  transition:opacity .25s, transform .25s;
+  font-weight:400;
+}
+.menu-social a:hover { opacity:1; transform:translateY(-2px); }
+.menu-social a svg { width:18px; height:18px; flex-shrink:0; }
+.menu-follow { font-size:9px; letter-spacing:.25em; text-transform:uppercase; color:var(--ink); opacity:.35; }
+
+/* ─── HERO ─── */
+#inicio { height:100vh; position:relative; overflow:hidden; background:#111; }
+.hero-bg { position:absolute; inset:0; }
+
+/* Video hero */
+.hero-video {
+  width:100%; height:100%;
+  object-fit:cover;
+  opacity:0;
+  transition:opacity 1.2s ease;
+  position:absolute; inset:0;
+}
+.hero-video.loaded { opacity:.75; }
+
+/* Foto carrusel hero */
+.hero-slide {
+  position:absolute; inset:0;
+  opacity:0;
+  transition:opacity 1.5s ease;
+}
+.hero-slide.active { opacity:1; }
+.hero-slide img {
+  width:100%; height:100%;
+  object-fit:cover;
+  opacity:.85;
+  transform:scale(1.08);
+  transition:transform 8s var(--ease-out), opacity .5s;
+}
+.hero-slide.active img {
+  transform:scale(1.0);
+}
+
+/* Overlay gradiente */
+.hero-overlay {
+  position:absolute; inset:0;
+  background:linear-gradient(to top, rgba(0,0,0,.55) 0%, rgba(0,0,0,.1) 60%, transparent 100%);
+  z-index:1;
+}
+
+.hero-content { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; padding:4rem 3rem; z-index:2; }
+
+/* Indicadores hero */
+.hero-dots {
+  position:absolute;
+  bottom:2.5rem; right:3rem;
+  display:flex; gap:6px;
+  z-index:3;
+}
+.hero-dot {
+  width:24px; height:1px;
+  background:rgba(255,255,255,.3);
+  border:none;
+  transition:background .4s, width .4s;
+}
+.hero-dot.active {
+  background:var(--gold);
+  width:40px;
+}
+.hero-label { font-size:9px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold); margin-bottom:1rem; }
+.hero-title { font-family:var(--font-display); font-size:clamp(3.5rem,7vw,6.5rem); /* ← TAMAÑO TÍTULO HERO */ font-weight:300; line-height:.95; color:var(--white); max-width:760px; margin-bottom:2.5rem; letter-spacing:-.01em; }
+.hero-title em { font-style:italic; }
+.hero-scroll { display:flex; align-items:center; gap:1rem; font-size:9px; letter-spacing:.25em; text-transform:uppercase; color:rgba(255,255,255,.45); }
+.hero-scroll::before { content:''; display:block; width:40px; height:1px; background:var(--gold); }
+
+/* ─── SECCIONES ─── */
+section { position:relative; }
+.section-label { font-size:9px; letter-spacing:.3em; text-transform:uppercase; color:var(--gold); }
+.section-eyebrow { display:flex; align-items:center; justify-content:space-between; margin-bottom:4rem; padding-bottom:1.25rem; border-bottom:1px solid var(--lgray); }
+.section-title { font-family:var(--font-display); font-size:clamp(2.8rem,4vw,4.2rem); /* ← TAMAÑO TÍTULOS DE SECCIÓN */ font-weight:300; line-height:1.0; letter-spacing:-.01em; }
+.section-title em { font-style:italic; color:var(--gray); }
+
+/* ─── REVEAL ─── */
+.reveal { opacity:0; transform:translateY(28px); transition:opacity .9s var(--ease-out), transform .9s var(--ease-out); }
+.reveal.visible { opacity:1; transform:none; }
+
+/* ─── FOOTER ─── */
+.footer { background:var(--ink); padding:2.5rem 3rem; display:flex; align-items:center; justify-content:space-between; border-top:1px solid #222; }
+.footer-logo { font-family:var(--font-display); font-size:1rem; font-weight:300; color:var(--white); letter-spacing:.12em; }
+.footer-links { display:flex; gap:2rem; }
+.footer-links a { font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:#555; transition:color .3s; }
+.footer-links a:hover { color:var(--white); }
+.footer-copy { font-size:10px; color:var(--gray); }
+
+/* ─────────────────────────────────────────
+   PROYECTOS
+───────────────────────────────────────── */
+#proyectos { padding:6rem 3rem 9rem; background:var(--bone); } /* ← PADDING SECCIÓN PROYECTOS (arriba · lados · abajo) */
+.projects-grid { display:grid; grid-template-columns:repeat(12,1fr); gap:1.25rem; row-gap:1.5rem; }
+.proj-wrap { display:flex; flex-direction:column; min-height:0; }
+/* ── ROW 1: grande izquierda + chico derecha ── */
+.proj-wrap:nth-child(1) { grid-column:span 7; }
+.proj-wrap:nth-child(2) { grid-column:span 5; }
+/* ── ROW 2: chico izquierda + grande derecha ── */
+.proj-wrap:nth-child(3) { grid-column:span 5; }
+.proj-wrap:nth-child(4) { grid-column:span 7; }
+/* ── ROW 3: grande izquierda + chico derecha ── */
+.proj-wrap:nth-child(5) { grid-column:span 7; }
+.proj-wrap:nth-child(6) { grid-column:span 5; }
+/* ── Extra ── */
+.proj-wrap:nth-child(n+7) { grid-column:span 6; }
+
+/* ── ALTURAS DE TARJETAS — cambiá los px para hacer las fotos más altas o bajas ── */
+.proj-wrap:nth-child(1) .proj-card { height:580px; min-height:580px; } /* 1ro — grande izquierda */
+.proj-wrap:nth-child(2) .proj-card { height:380px; min-height:380px; } /* 2do — chico derecha */
+.proj-wrap:nth-child(3) .proj-card { height:380px; min-height:380px; } /* 3ro — chico izquierda */
+.proj-wrap:nth-child(4) .proj-card { height:580px; min-height:580px; } /* 4to — grande derecha */
+.proj-wrap:nth-child(5) .proj-card { height:580px; min-height:580px; } /* 5to — grande izquierda */
+.proj-wrap:nth-child(6) .proj-card { height:380px; min-height:380px; } /* 6to — chico derecha */
+.proj-wrap:nth-child(n+7) .proj-card { height:460px; min-height:460px; } /* 7mo en adelante */
+
+.proj-card { position:relative; overflow:hidden; background:#1a1a1a; flex-shrink:0; height:100%; }
+.proj-slider { position:absolute; inset:0; display:flex; transition:transform .6s var(--ease-out); height:100%; }
+.proj-slide  { min-width:100%; height:100%; min-height:300px; flex-shrink:0; position:relative; }
+.proj-slide img { width:100%; height:100%; object-fit:cover; opacity:.8; transition:opacity .5s, transform .7s var(--ease-out); }
+.proj-card:hover .proj-slide img { opacity:1; transform:scale(1.04); }
+
+.proj-arrow { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,.45); border:none; color:rgba(255,255,255,.8); width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-size:14px; z-index:10; opacity:0; transition:opacity .3s, background .2s; backdrop-filter:blur(4px); }
+.proj-card:hover .proj-arrow { opacity:1; }
+.proj-arrow:hover { background:rgba(0,0,0,.75); color:var(--white); }
+.proj-arrow.left  { left:.75rem; }
+.proj-arrow.right { right:.75rem; }
+.proj-arrow.hidden { opacity:0 !important; pointer-events:none; }
+
+.proj-dots { position:absolute; bottom:4rem; left:50%; transform:translateX(-50%); display:flex; gap:6px; z-index:10; opacity:0; transition:opacity .3s; }
+.proj-card:hover .proj-dots { opacity:1; }
+.proj-dot { width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.3); border:none; transition:background .2s, transform .2s; }
+.proj-dot.active { background:var(--gold); transform:scale(1.3); }
+
+.proj-badge { position:absolute; top:1rem; left:1rem; background:rgba(0,0,0,.4); color:rgba(255,255,255,.75); font-size:8px; letter-spacing:.12em; padding:.3rem .6rem; z-index:10; backdrop-filter:blur(4px); pointer-events:none; }
+
+.proj-info-overlay { position:absolute; bottom:0; left:0; right:0; padding:3rem 1.5rem 1.25rem; background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 100%); z-index:5; cursor:pointer; }
+.proj-type         { font-size:8px; letter-spacing:.25em; text-transform:uppercase; color:var(--gold); margin-bottom:.3rem; }
+.proj-name-overlay { font-family:var(--font-display); font-size:1.4rem; font-weight:300; color:var(--white); line-height:1.2; }
+.proj-meta-overlay { font-size:9px; color:rgba(255,255,255,.45); margin-top:.2rem; }
+
+.proj-ver-mas { position:absolute; bottom:1.25rem; right:1.25rem; display:flex; align-items:center; gap:.6rem; font-size:9px; letter-spacing:.18em; text-transform:uppercase; color:rgba(255,255,255,.8); background:none; border:1px solid rgba(255,255,255,.25); padding:.5rem .9rem; z-index:10; opacity:0; transform:translateY(6px); transition:opacity .35s var(--ease-out), transform .35s var(--ease-out), border-color .2s, color .2s; backdrop-filter:blur(4px); }
+.proj-card:hover .proj-ver-mas { opacity:1; transform:translateY(0); }
+.proj-ver-mas:hover { border-color:var(--gold); color:var(--gold); }
+.proj-ver-mas-arrow { display:block; width:16px; height:1px; background:currentColor; position:relative; transition:width .3s; }
+.proj-ver-mas:hover .proj-ver-mas-arrow { width:24px; }
+
+.proj-desc-block   { background:var(--white); padding:1.25rem 1.5rem 1.5rem; border-left:2px solid var(--gold); border-top:none; }
+.proj-desc-eyebrow { font-size:8px; letter-spacing:.22em; text-transform:uppercase; color:var(--gold); margin-bottom:.5rem; }
+.proj-desc-name    { font-family:var(--font-display); font-size:1.25rem; font-weight:400; color:var(--ink); margin-bottom:.6rem; letter-spacing:.01em; }
+.proj-desc-text    { font-size:.82rem; font-weight:300; line-height:2; color:#777; }
+
+.proj-empty { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.5rem; background:#1e1e1e; min-height:inherit; }
+.proj-empty-lbl { font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:rgba(255,255,255,.15); }
+
+/* ─── LIGHTBOX ─── */
+.lightbox { display:none; position:fixed; inset:0; background:rgba(5,5,5,.97); z-index:600; flex-direction:column; }
+.lightbox.open { display:flex; }
+.lb-bar { display:flex; align-items:flex-start; justify-content:space-between; padding:2rem 3rem; flex-shrink:0; border-bottom:1px solid #1a1a1a; gap:2rem; }
+.lb-info { flex:1; }
+.lb-proj-tag   { font-size:8px; letter-spacing:.25em; text-transform:uppercase; color:var(--gold); margin-bottom:.3rem; }
+.lb-proj-title { font-family:var(--font-display); font-size:clamp(1.2rem,2.5vw,1.8rem); font-weight:300; color:var(--white); line-height:1.15; }
+.lb-proj-loc   { font-size:10px; color:var(--gray); margin-top:.2rem; }
+.lb-proj-description { font-size:.78rem; font-weight:300; line-height:1.8; color:#555; margin-top:.6rem; max-width:480px; }
+.lb-controls { display:flex; align-items:center; gap:1.5rem; flex-shrink:0; }
+.lb-count { font-size:10px; color:var(--gray); letter-spacing:.1em; }
+.lb-close { background:none; border:1px solid #2a2a2a; color:var(--gray); padding:.45rem 1.1rem; font-size:9px; letter-spacing:.15em; text-transform:uppercase; transition:border-color .2s, color .2s; }
+.lb-close:hover { border-color:var(--white); color:var(--white); }
+.lb-stage { flex:1; display:flex; align-items:center; justify-content:center; position:relative; padding:2rem 5rem; overflow:hidden; }
+.lb-stage img { max-width:100%; max-height:100%; object-fit:contain; transition:opacity .25s; }
+.lb-nav { position:absolute; top:50%; transform:translateY(-50%); background:none; border:none; color:#2a2a2a; font-size:2rem; padding:1.5rem; transition:color .2s; }
+.lb-nav:hover { color:var(--white); }
+.lb-nav.left  { left:.5rem; }
+.lb-nav.right { right:.5rem; }
+.lb-strip { flex-shrink:0; display:flex; gap:.6rem; padding:1rem 3rem; overflow-x:auto; border-top:1px solid #1a1a1a; align-items:center; }
+.lb-strip::-webkit-scrollbar { height:2px; }
+.lb-strip::-webkit-scrollbar-thumb { background:#2a2a2a; }
+.lb-thumb { width:72px; height:50px; object-fit:cover; opacity:.35; flex-shrink:0; border:1px solid transparent; transition:opacity .2s, border-color .2s; }
+.lb-thumb:hover  { opacity:.7; }
+.lb-thumb.active { opacity:1; border-color:var(--gold); }
+
+/* ─────────────────────────────────────────
+   NOSOTROS
+───────────────────────────────────────── */
+#nosotros { background:var(--ink); color:var(--white); display:grid; grid-template-columns:1fr 1fr; min-height:80vh; }
+.about-image-side { position:relative; overflow:hidden; background:#1a1a1a; min-height:500px; }
+.about-image-side img { width:100%; height:100%; object-fit:cover; opacity:.75; transition:transform 8s var(--ease-out), opacity .5s; }
+.about-image-side:hover img { transform:scale(1.04); opacity:.85; }
+.about-gold-line { position:absolute; bottom:0; right:0; width:50%; height:2px; background:var(--gold); }
+.about-text-side { padding:6rem 5rem 6rem 6rem; display:flex; flex-direction:column; justify-content:center; background:var(--ink); overflow:hidden; }
+.about-title { font-family:var(--font-display); font-size:clamp(2.8rem,4vw,4rem); /* ← TAMAÑO TÍTULO NOSOTROS */ font-weight:300; line-height:.98; margin:1.25rem 0 2.5rem; letter-spacing:-.01em; }
+.about-title em { font-style:italic; color:var(--gray); }
+.about-body { font-size:.9rem; /* ← TAMAÑO TEXTO NOSOTROS */ font-weight:300; line-height:2; color:#aaa; margin-bottom:1.5rem; max-width:420px; }
+.about-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; border-top:1px solid rgba(255,255,255,.1); padding-top:2.5rem; margin-top:2rem; }
+.stat-num { font-family:var(--font-display); font-size:3.2rem; font-weight:300; line-height:1; margin-bottom:.4rem; }
+.stat-lbl { font-size:8px; letter-spacing:.25em; text-transform:uppercase; color:#555; }
+
+/* ─────────────────────────────────────────
+   SERVICIOS
+───────────────────────────────────────── */
+#servicios { padding:7rem 3rem; background:var(--bone); } /* ← PADDING SECCIÓN SERVICIOS (arriba/abajo · lados) */
+.services-grid { display:grid; grid-template-columns:repeat(3,1fr); border:1px solid var(--lgray); }
+.service-item { padding:3rem 2.5rem; border-right:1px solid var(--lgray); position:relative; overflow:hidden; transition:background .5s; }
+.service-item:last-child, .service-item:nth-child(3) { border-right:none; }
+.service-item:nth-child(4), .service-item:nth-child(5), .service-item:nth-child(6) { border-top:1px solid var(--lgray); }
+.service-item:hover { background:var(--white); }
+.service-item::after { content:''; position:absolute; bottom:0; left:0; height:2px; width:0; background:var(--gold); transition:width .4s var(--ease-out); }
+.service-item:hover::after { width:100%; }
+.service-num   { font-family:var(--font-display); font-size:2rem; font-weight:300; color:var(--lgray); line-height:1; margin-bottom:1.5rem; letter-spacing:.05em; }
+.service-title { font-family:var(--font-display); font-size:1.5rem; /* ← TAMAÑO TÍTULO SERVICIOS */ font-weight:400; margin-bottom:.85rem; letter-spacing:.01em; }
+.service-desc  { font-size:.82rem; font-weight:300; line-height:2; color:#999; }
+
+/* ─────────────────────────────────────────
+   CONTACTO
+───────────────────────────────────────── */
+#contacto { background:var(--white); display:grid; grid-template-columns:1fr 1fr; min-height:80vh; }
+.contact-left  { padding:7rem 5rem; border-right:1px solid var(--lgray); }
+.contact-right { padding:7rem 5rem; background:var(--bone); }
+.contact-title { font-family:var(--font-display); font-size:clamp(2.8rem,4vw,4rem); font-weight:300; line-height:.98; margin:1.25rem 0 3rem; letter-spacing:-.01em; }
+.contact-title em { font-style:italic; color:var(--gray); }
+.contact-details { display:flex; flex-direction:column; min-height:0; }
+.contact-row { display:flex; flex-direction:column; gap:.25rem; padding:1.25rem 0; border-bottom:1px solid var(--lgray); }
+.contact-row:first-child { border-top:1px solid var(--lgray); }
+.contact-row-label { font-size:8px; letter-spacing:.25em; text-transform:uppercase; color:var(--gold); }
+.contact-row-value { font-size:.95rem; font-weight:300; color:var(--ink); }
+.contact-form { display:flex; flex-direction:column; gap:2rem; padding-top:1rem; }
+.form-group { display:flex; flex-direction:column; gap:.5rem; position:relative; }
+.form-group label { font-size:8px; letter-spacing:.2em; text-transform:uppercase; color:var(--gray); }
+.form-group input, .form-group textarea, .form-group select { background:transparent; border:none; border-bottom:1px solid var(--lgray); padding:.7rem 0; font-family:var(--font-body); font-size:13px; font-weight:300; color:var(--ink); outline:none; transition:border-color .3s; width:100%; appearance:none; }
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-bottom-color:var(--ink); }
+.form-group textarea { resize:none; height:90px; line-height:1.7; }
+.form-group::after { content:''; position:absolute; bottom:0; left:0; height:1px; width:0; background:var(--ink); transition:width .4s var(--ease-out); }
+.form-group:focus-within::after { width:100%; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+.btn-submit { align-self:flex-start; background:var(--ink); color:var(--white); border:none; padding:1rem 2.5rem; font-size:9px; letter-spacing:.25em; text-transform:uppercase; transition:background .3s, transform .2s; }
+.btn-submit:hover { background:#333; transform:translateY(-1px); }
+.form-success { display:none; font-size:12px; color:var(--gray); padding:.5rem 0; }
+
+/* ─────────────────────────────────────────
+   LOGIN
+───────────────────────────────────────── */
+.login-overlay { display:none; position:fixed; inset:0; background:rgba(242,240,235,0.98); z-index:700; align-items:center; justify-content:center; }
+.login-overlay.open { display:flex; }
+.login-box { background:#FFFFFF; border:1px solid #DDDBD6; padding:3.5rem; text-align:center; min-width:340px; }
+.login-title    { font-family:var(--font-display); font-size:2rem; font-weight:300; color:var(--ink); margin-bottom:.4rem; }
+.login-subtitle { font-size:9px; letter-spacing:.2em; text-transform:uppercase; color:var(--gray); margin-bottom:2.5rem; }
+.login-input { width:100%; background:transparent; border:none; border-bottom:1px solid #DDDBD6; color:var(--ink); font-size:16px; padding:.75rem 0; outline:none; text-align:center; letter-spacing:.3em; transition:border-color .3s; margin-bottom:1.75rem; font-family:var(--font-body); }
+.login-input:focus { border-bottom-color:var(--gold); }
+.login-btn  { width:100%; background:var(--ink); color:var(--white); border:none; padding:.9rem; font-size:9px; letter-spacing:.25em; text-transform:uppercase; transition:background .2s; font-family:var(--font-body); }
+.login-btn:hover { background:var(--gold); color:var(--ink); }
+.login-error  { font-size:11px; color:#c07070; background:transparent; margin-top:.75rem; min-height:16px; }
+.login-cancel { background:none; border:none; color:#888888; font-size:9px; letter-spacing:.12em; text-transform:uppercase; margin-top:1rem; transition:color .2s; font-family:var(--font-body); }
+.login-cancel:hover { color:var(--ink); }
+
+/* ─────────────────────────────────────────
+   ADMIN PANEL
+───────────────────────────────────────── */
+.admin-overlay { display:none; position:fixed; inset:0; background:#F5F3EE; z-index:700; overflow-y:auto; overflow-x:hidden; }
+.admin-overlay.open { display:block; }
+.admin-inner { max-width:1020px; margin:0 auto; padding:4rem 2rem 6rem; }
+.admin-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:3.5rem; padding-bottom:1.5rem; border-bottom:1px solid #DDDBD6; }
+.admin-title  { font-family:var(--font-display); font-size:2rem; font-weight:300; color:var(--ink); }
+.admin-close  { background:none; border:1px solid #DDDBD6; color:var(--gray); padding:.5rem 1.25rem; font-size:9px; letter-spacing:.15em; text-transform:uppercase; transition:border-color .2s, color .2s; font-family:var(--font-body); }
+.admin-close:hover { border-color:var(--ink); color:var(--ink); }
+.admin-section-label { font-size:9px; letter-spacing:.25em; text-transform:uppercase; color:var(--gold); margin-bottom:1.25rem; display:block; }
+.admin-sep { border:none; border-top:1px solid #DDDBD6; margin:2.5rem 0; }
+
+/* Cloudinary notice */
+.cloudinary-notice-SKIP {
+  background:#0a0a0a; border:1px solid #1e1e1e; border-left:3px solid var(--gold);
+  padding:1.25rem 1.5rem; margin-bottom:2rem; font-size:11px; line-height:1.8; color:#555;
+}
+.cloudinary-notice strong { color:var(--gold); display:block; margin-bottom:.35rem; font-size:9px; letter-spacing:.2em; text-transform:uppercase; }
+.cloudinary-notice a { color:var(--gold); text-decoration:underline; }
+.cloudinary-notice code { background:#111; color:#888; padding:.1em .4em; font-size:10px; }
+
+/* Upload progress */
+.upload-progress { display:none; align-items:center; gap:1rem; padding:.75rem 0; }
+.upload-progress.visible { display:flex; }
+.progress-bar-wrap { flex:1; height:2px; background:#1a1a1a; }
+.progress-bar { height:2px; background:var(--gold); width:0%; transition:width .3s; }
+.progress-label { font-size:9px; color:#555; letter-spacing:.1em; white-space:nowrap; }
+
+/* about / favicon upload */
+.about-upload-row { display:flex; align-items:center; gap:1.5rem; margin-bottom:2rem; }
+.about-thumb { width:80px; height:80px; object-fit:cover; background:#1a1a1a; display:none; border:1px solid #222; }
+
+/* Proyecto card en admin */
+.admin-proj-list { display:flex; flex-direction:column; gap:2rem; margin-bottom:1.5rem; }
+.admin-proj-card { background:#FFFFFF; border:1px solid #DDDBD6; padding:1.75rem; }
+.admin-proj-fields { display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:1rem; align-items:end; margin-bottom:1.25rem; padding-bottom:1.25rem; border-bottom:1px solid #161616; }
+.admin-field-group { display:flex; flex-direction:column; gap:.35rem; }
+.admin-field-label { font-size:8px; letter-spacing:.18em; text-transform:uppercase; color:#888888; }
+.admin-field { background:transparent; border:none; border-bottom:1px solid #DDDBD6; color:var(--ink); font-family:var(--font-body); font-size:13px; font-weight:300; padding:.4rem 0; outline:none; width:100%; transition:border-color .2s; }
+.admin-field:focus { border-bottom-color:var(--ink); }
+.admin-field::placeholder { color:#252525; }
+.admin-desc-group { margin-bottom:1.25rem; }
+.admin-textarea { background:transparent; border:none; border-bottom:1px solid #DDDBD6; color:var(--ink); font-family:var(--font-body); font-size:13px; font-weight:300; padding:.5rem 0; outline:none; width:100%; resize:vertical; min-height:64px; line-height:1.7; transition:border-color .2s; margin-top:.4rem; }
+.admin-textarea:focus { border-bottom-color:var(--gold); }
+.admin-textarea::placeholder { color:#252525; }
+
+.del-proj-btn { background:none; border:1px solid #DDDBD6; color:#aaaaaa; padding:.4rem .75rem; font-size:11px; font-family:var(--font-body); transition:border-color .2s, color .2s; align-self:flex-end; }
+.del-proj-btn:hover { border-color:#c07070; color:#c07070; }
+
+/* Fotos */
+.admin-photos-label { font-size:8px; letter-spacing:.18em; text-transform:uppercase; color:#888888; margin-bottom:.75rem; }
+.admin-photos-grid  { display:flex; flex-wrap:wrap; gap:.75rem; align-items:flex-start; }
+.photo-thumb-wrap { position:relative; width:110px; height:80px; flex-shrink:0; }
+.photo-thumb-wrap img { width:110px; height:80px; object-fit:cover; display:block; }
+.photo-thumb-wrap.is-cover img { outline:2px solid var(--gold); }
+.photo-cover-badge { position:absolute; bottom:0; left:0; right:0; background:rgba(196,162,101,.9); font-size:7px; letter-spacing:.1em; text-transform:uppercase; text-align:center; padding:.2rem; color:var(--ink); }
+.photo-rm-btn   { position:absolute; top:3px; right:3px; background:rgba(0,0,0,.5); border:none; color:#fff; width:18px; height:18px; font-size:10px; display:flex; align-items:center; justify-content:center; transition:color .2s; font-family:var(--font-body); }
+.photo-rm-btn:hover { color:#c07070; }
+.photo-star-btn { position:absolute; top:3px; left:3px; background:rgba(0,0,0,.5); border:none; color:#ddd; width:18px; height:18px; font-size:9px; display:flex; align-items:center; justify-content:center; transition:color .2s; font-family:var(--font-body); }
+.photo-star-btn:hover { color:var(--gold); }
+
+/* Uploading spinner thumb */
+.photo-thumb-uploading { width:110px; height:80px; background:#F9F8F5; border:1px dashed #DDDBD6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.4rem; flex-shrink:0; }
+.upload-spinner { width:20px; height:20px; border:2px solid #1a1a1a; border-top-color:var(--gold); border-radius:50%; animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.uploading-name { font-size:7px; color:#888888; letter-spacing:.1em; text-align:center; padding:0 4px; }
+
+.add-photos-btn { width:110px; height:80px; background:#F9F8F5; border:1px dashed #DDDBD6; color:#888888; font-size:9px; letter-spacing:.1em; text-transform:uppercase; font-family:var(--font-body); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.35rem; flex-shrink:0; transition:border-color .2s, color .2s; }
+.add-photos-btn:hover { border-color:var(--gold); color:var(--gold); }
+.add-photos-btn:disabled { opacity:.4; pointer-events:none; }
+.add-photos-icon { font-size:1.4rem; line-height:1; }
+
+.file-input { display:none; }
+
+.add-proj-btn { width:100%; background:transparent; border:1px dashed #DDDBD6; color:#888888; padding:.75rem; font-size:9px; letter-spacing:.15em; text-transform:uppercase; font-family:var(--font-body); margin-bottom:2rem; transition:border-color .2s, color .2s; }
+.add-proj-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+.upload-btn-sm { background:transparent; border:1px solid #DDDBD6; color:#888888; padding:.6rem 1.25rem; font-size:9px; letter-spacing:.12em; text-transform:uppercase; font-family:var(--font-body); transition:border-color .2s, color .2s; }
+.upload-btn-sm:hover { border-color:var(--gold); color:var(--gold); }
+
+.save-btn { background:var(--gold); color:var(--ink); border:none; padding:1rem 2.5rem; font-size:10px; letter-spacing:.2em; text-transform:uppercase; font-weight:500; font-family:var(--font-body); transition:opacity .2s; }
+.save-btn:hover { opacity:.85; }
+.admin-msg { font-size:12px; color:var(--gold); margin-top:.75rem; min-height:18px; }
+
+/* ─────────────────────────────────────────
+   RESPONSIVE
+───────────────────────────────────────── */
+@media (max-width:768px) {
+  .nav { padding:1.5rem; }
+  .menu-overlay { padding:1.5rem; }
+  .hero-content { padding:2rem 1.5rem; }
+  .hero-title { font-size:clamp(2.5rem,12vw,4rem); }
+
+  #proyectos { padding:3rem 1.25rem 5rem; }
+  .projects-grid { grid-template-columns:1fr; gap:.75rem; }
+  .proj-wrap:nth-child(n) { grid-column:span 1; }
+  .proj-wrap:nth-child(n) .proj-card { height:260px !important; min-height:260px !important; }
+
+  #nosotros { grid-template-columns:1fr; }
+  .about-image-side { min-height:280px; }
+  .about-text-side  { padding:3rem 1.5rem; }
+  .about-title { font-size:clamp(2rem,8vw,2.8rem); margin-bottom:1.5rem; }
+  .about-body { font-size:.82rem; line-height:1.8; }
+  .about-stats { gap:1rem; padding-top:1.5rem; margin-top:1.5rem; }
+  .stat-num { font-size:2.2rem; }
+
+  #servicios { padding:3rem 1.25rem; }
+  .services-grid { grid-template-columns:1fr; }
+  .service-item { border-right:none; border-bottom:1px solid var(--lgray); padding:2rem 1.25rem; }
+  .service-item:nth-child(3) { border-bottom:1px solid var(--lgray); }
+  .service-num { font-size:1.5rem; margin-bottom:1rem; }
+  .service-title { font-size:1.2rem; }
+
+  #contacto { grid-template-columns:1fr; min-height:unset; }
+  .contact-left  { padding:6rem 1.5rem 2rem; border-right:none; border-bottom:1px solid var(--lgray); }
+  .contact-right { padding:2rem 1.5rem 3rem; background:var(--bone); }
+  .contact-title { font-size:1.9rem; margin-bottom:1.25rem; line-height:1.2; }
+  .contact-details { gap:0; }
+  .contact-row { padding:.75rem 0; }
+  .contact-row-label { font-size:7px; }
+  .contact-row-value { font-size:.82rem; }
+  .form-group label { font-size:7px; }
+  .form-group input, .form-group textarea, .form-group select { font-size:14px; }
+  .btn-submit { width:100%; text-align:center; padding:.85rem; }
+  .form-row { grid-template-columns:1fr; }
+
+  .lb-bar   { padding:1rem 1.5rem; flex-direction:column; gap:1rem; }
+  .lb-stage { padding:1rem 2.5rem; }
+  .lb-strip { padding:.75rem 1.5rem; }
+
+  .admin-proj-fields { grid-template-columns:1fr 1fr; grid-template-rows:auto auto; }
+  .login-box { min-width:unset; width:90vw; padding:2.5rem 1.5rem; }
+  .footer { flex-direction:column; gap:1.25rem; text-align:center; padding:2rem 1.5rem; }
+  .footer-links { flex-wrap:wrap; justify-content:center; gap:1rem; }
+
+  .section-title { font-size:clamp(2rem,8vw,3rem); }
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+
+<!-- LOADING -->
+<div id="loading-msg" style="display:none;position:fixed;inset:0;background:var(--bone);z-index:800;align-items:center;justify-content:center;flex-direction:column;gap:1rem">
+  <div style="width:32px;height:32px;border:1px solid var(--lgray);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite"></div>
+  <p style="font-size:9px;letter-spacing:.25em;text-transform:uppercase;color:var(--gray)">Cargando</p>
+</div>
+
+<div class="cursor" id="cursor"></div>
+
+<!-- ══════════════════════════════
+     LOGIN
+══════════════════════════════ -->
+<div class="login-overlay" id="login-overlay">
+  <div class="login-box">
+    <p class="login-title">Admin</p>
+    <p class="login-subtitle">Panel de administración</p>
+    <input class="login-input" type="password" id="login-input"
+      placeholder="· · · · · ·" maxlength="40"
+      onkeydown="if(event.key==='Enter') checkLogin()"/>
+    <button class="login-btn" onclick="checkLogin()">Ingresar</button>
+    <p class="login-error" id="login-error"></p>
+    <button class="login-cancel" onclick="closeLogin()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     ADMIN PANEL
+══════════════════════════════ -->
+<div class="admin-overlay" id="admin-overlay">
+  <div class="admin-inner">
+
+    <div class="admin-header" style="flex-direction:column;align-items:flex-start;gap:1rem;position:sticky;top:0;background:#F5F3EE;z-index:10;margin:-4rem -2rem 3.5rem;padding:1.5rem 2rem;">
+      <p class="admin-title">Panel de Administración</p>
+      <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+        <button id="mobile-preview-btn" onclick="toggleMobilePreview()"
+          style="display:flex;align-items:center;gap:.4rem;background:transparent;border:1px solid #DDDBD6;color:var(--gray);padding:.5rem 1rem;font-size:9px;letter-spacing:.15em;text-transform:uppercase;font-family:var(--font-body);cursor:pointer;white-space:nowrap;transition:border-color .2s,color .2s">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:12px;height:12px;flex-shrink:0">
+            <rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/>
+          </svg>
+          Vista mobile
+        </button>
+        <button onclick="saveAll()"
+          style="background:var(--gold);color:var(--ink);border:none;padding:.5rem 1.25rem;font-size:9px;letter-spacing:.15em;text-transform:uppercase;font-family:var(--font-body);font-weight:500;white-space:nowrap;cursor:pointer">
+          Guardar todos los cambios
+        </button>
+        <button onclick="closeAdmin()"
+          style="background:none;border:1px solid #DDDBD6;color:var(--gray);padding:.5rem 1rem;font-size:9px;letter-spacing:.15em;text-transform:uppercase;font-family:var(--font-body);white-space:nowrap;cursor:pointer">
+          ✕ Cerrar
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile preview panel -->
+    <div id="mobile-preview-panel" style="display:none;position:fixed;top:0;right:0;width:420px;height:100vh;background:#1a1a1a;z-index:800;box-shadow:-4px 0 24px rgba(0,0,0,.4);flex-direction:column">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid #2a2a2a;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5" style="width:14px;height:14px"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>
+          <span style="font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:#888">Vista mobile — 390px</span>
+        </div>
+        <div style="display:flex;gap:.5rem">
+          <button onclick="refreshMobilePreview()" style="background:none;border:1px solid #2a2a2a;color:#666;padding:.3rem .75rem;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-body);transition:color .2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#666'">↺ Refrescar</button>
+          <button onclick="toggleMobilePreview()" style="background:none;border:1px solid #2a2a2a;color:#666;padding:.3rem .75rem;font-size:9px;letter-spacing:.1em;text-transform:uppercase;font-family:var(--font-body);transition:color .2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#666'">✕</button>
+        </div>
+      </div>
+      <div style="flex:1;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;padding:1rem;background:#111">
+        <div style="width:390px;height:844px;border-radius:40px;overflow:hidden;border:8px solid #2a2a2a;box-shadow:0 0 40px rgba(0,0,0,.5);flex-shrink:0;position:relative">
+          <iframe id="mobile-preview-frame" src="" style="width:100%;height:100%;border:none;transform-origin:top left" scrolling="yes"></iframe>
+        </div>
+      </div>
+      <div style="padding:.75rem 1.25rem;border-top:1px solid #2a2a2a;flex-shrink:0">
+        <p style="font-size:9px;color:#444;letter-spacing:.1em;text-align:center">Los cambios se ven después de guardar y refrescar</p>
+      </div>
+    </div>
+
+    <!-- Cloudinary notice -->
+    <div class="cloudinary-notice" id="cloudinary-notice">
+      <strong>☁️ Configuración de almacenamiento en la nube</strong>
+      Las fotos se suben a <a href="https://cloudinary.com" target="_blank">Cloudinary</a> (gratuito, 25GB).
+      Editá las dos primeras líneas del <code>&lt;script&gt;</code> con tu <code>CLOUDINARY_CLOUD_NAME</code>
+      y <code>CLOUDINARY_UPLOAD_PRESET</code>. Sin eso, las fotos se guardan temporalmente como antes pero <strong>no persisten entre dispositivos</strong>.
+      <br><br>
+      <strong>Pasos:</strong> 1) Creá cuenta en cloudinary.com → 2) Dashboard → copiá Cloud Name → 3) Settings → Upload → Add upload preset (Unsigned) → copiá el nombre → 4) Pegalo en el código.
+    </div>
+
+    <hr class="admin-sep"/>
+
+    <!-- Hero principal -->
+    <span class="admin-section-label">Portada — Imagen o video de entrada</span>
+
+    <div style="margin-bottom:1.5rem">
+      <span class="admin-field-label" style="display:block;margin-bottom:.5rem">Texto del label (ej: Proyecto destacado)</span>
+      <input class="admin-field" id="input-hero-label" placeholder="Proyecto destacado" style="max-width:480px"/>
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <span class="admin-field-label" style="display:block;margin-bottom:.5rem">Título principal (podés usar &lt;em&gt; para cursiva)</span>
+      <input class="admin-field" id="input-hero-title" placeholder="Espacio que &lt;em&gt;habla&lt;/em&gt; por sí solo." style="max-width:480px"/>
+    </div>
+
+    <div style="margin-bottom:1.5rem">
+      <span class="admin-field-label" style="display:block;margin-bottom:.75rem">Video de fondo (MP4 · máx 50MB · recomendado horizontal)</span>
+      <div style="display:flex;align-items:center;gap:1rem">
+        <input type="file" accept="video/mp4,video/webm" class="file-input" id="hero-video-file"
+          onchange="handleHeroVideo(event)"/>
+        <button class="upload-btn-sm" onclick="document.getElementById('hero-video-file').click()">
+          Subir video
+        </button>
+        <span id="hero-video-status" style="font-size:11px;color:var(--gray)"></span>
+        <button class="upload-btn-sm" id="hero-video-remove" style="display:none;color:#c07070;border-color:#c07070"
+          onclick="removeHeroVideo()">✕ Quitar video</button>
+      </div>
+      <p style="font-size:10px;color:#aaa;margin-top:.4rem">Si hay video, se reproduce en loop sin sonido. Las fotos se usan como fallback si no hay video.</p>
+    </div>
+
+    <div style="margin-bottom:2rem">
+      <span class="admin-field-label" style="display:block;margin-bottom:.75rem">Fotos del carrusel hero (se muestran si no hay video, o si el video no carga)</span>
+      <div class="admin-photos-grid" id="hero-photos-grid">
+        <input type="file" accept="image/png,image/jpeg,image/webp" multiple
+          class="file-input" id="hero-photos-input"
+          onchange="handleHeroPhotos(event)"/>
+        <button class="add-photos-btn" id="hero-add-btn"
+          onclick="document.getElementById('hero-photos-input').click()">
+          <span class="add-photos-icon">+</span>
+          <span>Subir fotos</span>
+        </button>
+      </div>
+    </div>
+
+    <hr class="admin-sep"/>
+
+    <!-- Estilos avanzados -->
+    <span class="admin-section-label">Estilos avanzados — Tamaños y espaciados</span>
+    <p style="font-size:11px;color:var(--gray);margin-bottom:1.5rem">Controlá el tamaño de texto, espaciado y estilo de botones en cada sección.</p>
+
+    <div style="display:flex;flex-direction:column;gap:1rem;max-width:680px;margin-bottom:2rem">
+
+      <!-- HERO -->
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem;color:var(--gold)">Portada</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño título hero</span>
+            <input type="range" id="style-hero-title" min="2" max="8" step="0.1" value="6.5"
+              style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('style-hero-title-val',this.value+'rem');applyAdvancedStyles()"/></div>
+            <span id="style-hero-title-val" style="font-size:11px;color:var(--gray);white-space:nowrap">6.5rem</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROYECTOS -->
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Proyectos</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño título sección</span>
+            <input type="range" id="style-proj-title" min="1.5" max="6" step="0.1" value="4.2"
+              style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('style-proj-title-val',this.value+'rem');applyAdvancedStyles()"/></div>
+            <span id="style-proj-title-val" style="font-size:11px;color:var(--gray);white-space:nowrap">4.2rem</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño nombre proyecto</span>
+            <input type="range" id="style-proj-name" min="0.8" max="2.5" step="0.05" value="1.25"
+              style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('style-proj-name-val',this.value+'rem');applyAdvancedStyles()"/></div>
+            <span id="style-proj-name-val" style="font-size:11px;color:var(--gray);white-space:nowrap">1.25rem</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño descripción proyecto</span>
+            <input type="range" id="style-proj-desc" min="0.6" max="1.2" step="0.05" value="0.82"
+              style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('style-proj-desc-val',this.value+'rem');applyAdvancedStyles()"/></div>
+            <span id="style-proj-desc-val" style="font-size:11px;color:var(--gray);white-space:nowrap">0.82rem</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SERVICIOS -->
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Servicios</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño título servicio</span>
+            <input type="range" id="style-serv-title" min="0.8" max="3" step="0.05" value="1.5"
+              style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('style-serv-title-val',this.value+'rem');applyAdvancedStyles()"/></div>
+            <span id="style-serv-title-val" style="font-size:11px;color:var(--gray);white-space:nowrap">1.5rem</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño descripción servicio</span>
+            <input type="range" id="style-serv-desc" min="0.6" max="1.2" step="0.05" value="0.82"
+              style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('style-serv-desc-val',this.value+'rem');applyAdvancedStyles()"/></div>
+            <span id="style-serv-desc-val" style="font-size:11px;color:var(--gray);white-space:nowrap">0.82rem</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONTACTO -->
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Contacto</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño título contacto</span>
+            <input type="range" id="style-contact-title" min="1.5" max="5" step="0.1" value="4"
+              style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('style-contact-title-val',this.value+'rem');applyAdvancedStyles()"/></div>
+            <span id="style-contact-title-val" style="font-size:11px;color:var(--gray);white-space:nowrap">4rem</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño texto datos contacto</span>
+            <input type="range" id="style-contact-value" min="0.6" max="1.4" step="0.05" value="0.95"
+              style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('style-contact-value-val',this.value+'rem');applyAdvancedStyles()"/></div>
+            <span id="style-contact-value-val" style="font-size:11px;color:var(--gray);white-space:nowrap">0.95rem</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTONES -->
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Botón "Enviar consulta"</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div class="admin-field-group">
+            <span class="admin-field-label">Estilo del botón</span>
+            <select class="admin-field" id="style-btn-type" onchange="applyAdvancedStyles()">
+              <option value="square">Cuadrado (actual)</option>
+              <option value="rounded">Redondeado</option>
+              <option value="pill">Píldora</option>
+              <option value="outline">Solo borde</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Color del botón</span>
+            <input type="color" id="style-btn-color" value="#111111" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px" oninput="applyAdvancedStyles()"/>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Color texto del botón</span>
+            <input type="color" id="style-btn-text" value="#FFFFFF" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px" oninput="applyAdvancedStyles()"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Footer</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div class="admin-field-group">
+            <span class="admin-field-label">Texto copyright</span>
+            <input class="admin-field" id="style-footer-copy" placeholder="© 2025 Studio Arch. Todos los derechos reservados."/>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Color fondo footer</span>
+            <input type="color" id="style-footer-bg" value="#111111" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px" oninput="applyAdvancedStyles()"/>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <hr class="admin-sep"/>
+
+    <!-- Colores -->
+    <span class="admin-section-label">Colores del sitio</span>
+    <p style="font-size:11px;color:var(--gray);margin-bottom:1.5rem">Cambiá los colores de cada sección. Los cambios se ven al guardar.</p>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:680px;margin-bottom:2rem">
+
+      <div class="admin-proj-card" style="padding:1.25rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:.75rem;color:var(--gold)">General</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Fondo general (crema)</span>
+            <input type="color" id="color-bone" value="#F2F0EB" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px"/>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Color de acento (dorado)</span>
+            <input type="color" id="color-gold" value="#C4A265" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px"/>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Color de texto principal</span>
+            <input type="color" id="color-ink" value="#111111" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-proj-card" style="padding:1.25rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:.75rem">Menú</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Fondo menú hamburguesa</span>
+            <input type="color" id="color-olive" value="#5A5E4A" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-proj-card" style="padding:1.25rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:.75rem">Nosotros</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Fondo sección</span>
+            <input type="color" id="color-nosotros-bg" value="#111111" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px"/>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Color de texto</span>
+            <input type="color" id="color-nosotros-text" value="#FFFFFF" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-proj-card" style="padding:1.25rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:.75rem">Servicios</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Fondo sección</span>
+            <input type="color" id="color-servicios-bg" value="#F2F0EB" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-proj-card" style="padding:1.25rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:.75rem">Contacto</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Fondo izquierda</span>
+            <input type="color" id="color-contacto-left" value="#FFFFFF" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px"/>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Fondo formulario</span>
+            <input type="color" id="color-contacto-right" value="#F2F0EB" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-proj-card" style="padding:1.25rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:.75rem">Proyectos</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span class="admin-field-label">Fondo sección</span>
+            <input type="color" id="color-proyectos-bg" value="#F2F0EB" style="width:36px;height:28px;border:1px solid var(--lgray);border-radius:4px;cursor:pointer;padding:2px"/>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <hr class="admin-sep"/>
+
+    <!-- Nombre del estudio -->
+    <span class="admin-section-label">Nombre del estudio</span>
+    <div style="display:flex;gap:1rem;align-items:flex-end;margin-bottom:2rem;max-width:480px">
+      <div class="admin-field-group" style="flex:1">
+        <span class="admin-field-label">Nombre visible en el sitio y el título</span>
+        <input class="admin-field" id="input-studio-name" placeholder="Ej: Studio Arch"/>
+      </div>
+      <button class="upload-btn-sm" onclick="saveStudioName()">Aplicar</button>
+    </div>
+
+    <hr class="admin-sep"/>
+
+    <!-- Tipografía -->
+    <span class="admin-section-label">Tipografía — por sección</span>
+    <p style="font-size:11px;color:var(--gray);margin-bottom:1.5rem">Elegí fuente de títulos y textos para cada sección. El cambio se aplica al guardar.</p>
+
+    <div style="display:flex;flex-direction:column;gap:1rem;max-width:680px;margin-bottom:.5rem">
+
+      <!-- GLOBAL -->
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem;border-left:3px solid var(--gold)">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem;color:var(--gold)">Global — aplica a todo el sitio</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="admin-field-group">
+            <span class="admin-field-label">Títulos</span>
+            <select class="admin-field" id="font-global-display" onchange="previewFonts()">
+              <option value="Cormorant Garamond">Cormorant Garamond</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="DM Serif Display">DM Serif Display</option>
+              <option value="Libre Baskerville">Libre Baskerville</option>
+            </select>
+          </div>
+          <div class="admin-field-group">
+            <span class="admin-field-label">Textos</span>
+            <select class="admin-field" id="font-global-body" onchange="previewFonts()">
+              <option value="Inter">Inter</option>
+              <option value="Lato">Lato</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="Raleway">Raleway</option>
+            </select>
+          </div>
+        </div>
+        <div style="background:var(--bone);padding:1rem 1.25rem;margin-top:1rem;border-left:2px solid var(--lgray)">
+          <p id="font-preview-display" style="font-size:1.6rem;font-weight:300;margin-bottom:.3rem">Diseño que nace del lugar.</p>
+          <p id="font-preview-body" style="font-size:.82rem;font-weight:300;color:var(--gray)">Trabajamos en la intersección del rigor técnico y la sensibilidad estética.</p>
+        </div>
+      </div>
+
+      <!-- POR SECCIÓN -->
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Portada — Imagen o video de entrada</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="admin-field-group">
+            <span class="admin-field-label">Títulos</span>
+            <select class="admin-field" id="font-hero-display" onchange="previewFonts()">
+              <option value="Cormorant Garamond">Cormorant Garamond</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="DM Serif Display">DM Serif Display</option>
+              <option value="Libre Baskerville">Libre Baskerville</option>
+            </select>
+          </div>
+          <div class="admin-field-group">
+            <span class="admin-field-label">Textos</span>
+            <select class="admin-field" id="font-hero-body" onchange="previewFonts()">
+              <option value="Inter">Inter</option>
+              <option value="Lato">Lato</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="Raleway">Raleway</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Proyectos</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="admin-field-group">
+            <span class="admin-field-label">Títulos</span>
+            <select class="admin-field" id="font-proyectos-display" onchange="previewFonts()">
+              <option value="Cormorant Garamond">Cormorant Garamond</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="DM Serif Display">DM Serif Display</option>
+              <option value="Libre Baskerville">Libre Baskerville</option>
+            </select>
+          </div>
+          <div class="admin-field-group">
+            <span class="admin-field-label">Textos</span>
+            <select class="admin-field" id="font-proyectos-body" onchange="previewFonts()">
+              <option value="Inter">Inter</option>
+              <option value="Lato">Lato</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="Raleway">Raleway</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Nosotros</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="admin-field-group">
+            <span class="admin-field-label">Títulos</span>
+            <select class="admin-field" id="font-nosotros-display" onchange="previewFonts()">
+              <option value="Cormorant Garamond">Cormorant Garamond</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="DM Serif Display">DM Serif Display</option>
+              <option value="Libre Baskerville">Libre Baskerville</option>
+            </select>
+          </div>
+          <div class="admin-field-group">
+            <span class="admin-field-label">Textos</span>
+            <select class="admin-field" id="font-nosotros-body" onchange="previewFonts()">
+              <option value="Inter">Inter</option>
+              <option value="Lato">Lato</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="Raleway">Raleway</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Servicios</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="admin-field-group">
+            <span class="admin-field-label">Títulos</span>
+            <select class="admin-field" id="font-servicios-display" onchange="previewFonts()">
+              <option value="Cormorant Garamond">Cormorant Garamond</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="DM Serif Display">DM Serif Display</option>
+              <option value="Libre Baskerville">Libre Baskerville</option>
+            </select>
+          </div>
+          <div class="admin-field-group">
+            <span class="admin-field-label">Textos</span>
+            <select class="admin-field" id="font-servicios-body" onchange="previewFonts()">
+              <option value="Inter">Inter</option>
+              <option value="Lato">Lato</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="Raleway">Raleway</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Contacto</span>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+          <div class="admin-field-group">
+            <span class="admin-field-label">Títulos</span>
+            <select class="admin-field" id="font-contacto-display" onchange="previewFonts()">
+              <option value="Cormorant Garamond">Cormorant Garamond</option>
+              <option value="Playfair Display">Playfair Display</option>
+              <option value="DM Serif Display">DM Serif Display</option>
+              <option value="Libre Baskerville">Libre Baskerville</option>
+            </select>
+          </div>
+          <div class="admin-field-group">
+            <span class="admin-field-label">Textos</span>
+            <select class="admin-field" id="font-contacto-body" onchange="previewFonts()">
+              <option value="Inter">Inter</option>
+              <option value="Lato">Lato</option>
+              <option value="Montserrat">Montserrat</option>
+              <option value="Raleway">Raleway</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <p style="font-size:10px;color:var(--gray);margin-bottom:2rem">Si una sección no tiene fuente asignada, usa la Global.</p>
+
+
+    <hr class="admin-sep"/>
+
+    <!-- Favicon -->
+    <span class="admin-section-label">Favicon e ícono del sitio</span>
+    <div style="display:flex;align-items:center;gap:1.5rem;margin-bottom:2rem">
+      <img id="favicon-preview" style="width:48px;height:48px;object-fit:contain;background:#1a1a1a;display:none;border:1px solid #222;padding:4px" src="" alt="favicon"/>
+      <div>
+        <input type="file" accept="image/png,image/jpeg,image/svg+xml,image/x-icon"
+          class="file-input" id="favicon-file" onchange="handleFaviconUpload(event)"/>
+        <button class="upload-btn-sm" onclick="document.getElementById('favicon-file').click()">
+          Subir favicon (PNG, 512×512 recomendado)
+        </button>
+        <p style="font-size:10px;color:#2a2a2a;margin-top:.4rem">Aparece en la pestaña del navegador.</p>
+      </div>
+    </div>
+
+    <hr class="admin-sep"/>
+
+    <!-- Foto Nosotros -->
+    <span class="admin-section-label">Foto — Sección Nosotros</span>
+    <div class="about-upload-row">
+      <img class="about-thumb" id="about-thumb-preview" src="" alt=""/>
+      <div>
+        <input type="file" accept="image/png,image/jpeg,image/webp"
+          class="file-input" id="about-file" onchange="handleAboutPhoto(event)"/>
+        <button class="upload-btn-sm" onclick="document.getElementById('about-file').click()">
+          Subir foto (PNG o JPG · recomendado vertical)
+        </button>
+        <p style="font-size:10px;color:#2a2a2a;margin-top:.4rem">Se sube a Cloudinary y queda guardada permanentemente.</p>
+      </div>
+    </div>
+
+    <hr class="admin-sep"/>
+
+    <!-- Sección Nosotros / Yo -->
+    <span class="admin-section-label">Sección "Nosotros / Yo"</span>
+
+    <div style="display:flex;flex-direction:column;gap:1.5rem;max-width:680px;margin-bottom:2rem">
+      <div class="admin-field-group">
+        <span class="admin-field-label">Título de la sección (ej: Quiénes somos · Sobre mí)</span>
+        <input class="admin-field" id="input-about-eyebrow" placeholder="Quiénes somos"/>
+      </div>
+      <div class="admin-field-group">
+        <span class="admin-field-label">Título grande</span>
+        <input class="admin-field" id="input-about-title" placeholder="Diseño que nace del lugar."/>
+      </div>
+      <div class="admin-field-group" style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+        <div>
+          <span class="admin-field-label">Tamaño del título grande</span>
+          <input type="range" id="input-about-title-size" min="1" max="4" step="0.1" value="2.5"
+            style="width:100%;margin-top:.5rem;accent-color:var(--gold)"
+            oninput="updateSizePreview('about-title-size-val', this.value + 'rem'); applyAboutSizes()"/>
+        </div>
+        <span id="about-title-size-val" style="font-size:11px;color:var(--gray);white-space:nowrap">4rem</span>
+      </div>
+      <div class="admin-field-group">
+        <span class="admin-field-label">Párrafo 1</span>
+        <textarea class="admin-textarea" id="input-about-bio1" placeholder="Tu historia, tu estudio..."></textarea>
+      </div>
+      <div class="admin-field-group">
+        <span class="admin-field-label">Párrafo 2 (opcional)</span>
+        <textarea class="admin-textarea" id="input-about-bio2" placeholder="Tu proceso, tu enfoque..."></textarea>
+      </div>
+      <div class="admin-field-group" style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+        <div>
+          <span class="admin-field-label">Tamaño del texto (párrafos)</span>
+          <input type="range" id="input-about-body-size" min="0.6" max="1.4" step="0.05" value="0.9"
+            style="width:100%;margin-top:.5rem;accent-color:var(--gold)"
+            oninput="updateSizePreview('about-body-size-val', this.value + 'rem'); applyAboutSizes()"/>
+        </div>
+        <span id="about-body-size-val" style="font-size:11px;color:var(--gray);white-space:nowrap">0.9rem</span>
+      </div>
+    </div>
+
+    <span class="admin-field-label" style="display:block;margin-bottom:.75rem">Números destacados</span>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;max-width:680px;margin-bottom:2rem">
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        <input class="admin-field" id="input-stat-num1" placeholder="47" style="font-family:var(--font-display);font-size:1.5rem"/>
+        <input class="admin-field" id="input-stat-lbl1" placeholder="Proyectos"/>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        <input class="admin-field" id="input-stat-num2" placeholder="12" style="font-family:var(--font-display);font-size:1.5rem"/>
+        <input class="admin-field" id="input-stat-lbl2" placeholder="Años"/>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.5rem">
+        <input class="admin-field" id="input-stat-num3" placeholder="8" style="font-family:var(--font-display);font-size:1.5rem"/>
+        <input class="admin-field" id="input-stat-lbl3" placeholder="Premios"/>
+      </div>
+    </div>
+
+    <hr class="admin-sep"/>
+
+    <!-- Servicios -->
+    <span class="admin-section-label">Servicios</span>
+    <div class="admin-proj-list" id="admin-services-list"></div>
+    <button class="add-proj-btn" onclick="addService()">+ Agregar servicio</button>
+
+    <hr class="admin-sep"/>
+
+    <!-- Info de contacto -->
+    <span class="admin-section-label">Información de contacto</span>
+    <p style="font-size:11px;color:var(--gray);margin-bottom:1.5rem">Estos datos aparecen en la sección "Hablemos" y en el formulario.</p>
+
+    <div style="display:flex;flex-direction:column;gap:0;max-width:680px;margin-bottom:2rem" id="contact-info-list"></div>
+    <button class="add-proj-btn" style="max-width:680px;margin-bottom:2rem" onclick="addContactRow()">+ Agregar fila de contacto</button>
+
+    <hr class="admin-sep"/>
+
+    <!-- Texto del formulario -->
+    <span class="admin-section-label">Texto sección contacto</span>
+    <div style="display:flex;flex-direction:column;gap:1rem;max-width:680px;margin-bottom:2rem">
+      <div class="admin-field-group">
+        <span class="admin-field-label">Label superior (ej: Hablemos)</span>
+        <input class="admin-field" id="input-contact-label" placeholder="Hablemos"/>
+      </div>
+      <div class="admin-field-group">
+        <span class="admin-field-label">Título (podés usar &lt;em&gt; para cursiva)</span>
+        <input class="admin-field" id="input-contact-title" placeholder="¿Tenés un proyecto en &lt;em&gt;mente?&lt;/em&gt;"/>
+      </div>
+    </div>
+
+    <hr class="admin-sep"/>
+
+    <!-- Redes sociales -->
+    <span class="admin-section-label">Redes sociales y contacto</span>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;max-width:680px">
+      <div class="admin-field-group">
+        <span class="admin-field-label">Instagram (URL completa)</span>
+        <input class="admin-field" id="input-instagram" placeholder="https://instagram.com/tuusuario"/>
+      </div>
+      <div class="admin-field-group">
+        <span class="admin-field-label">Behance (URL completa)</span>
+        <input class="admin-field" id="input-behance" placeholder="https://behance.com/tuusuario"/>
+      </div>
+      <div class="admin-field-group">
+        <span class="admin-field-label">Vimeo (URL completa)</span>
+        <input class="admin-field" id="input-vimeo" placeholder="https://vimeo.com/tuusuario"/>
+      </div>
+      <div class="admin-field-group">
+        <span class="admin-field-label">WhatsApp (solo número con código de país)</span>
+        <input class="admin-field" id="input-whatsapp" placeholder="5491112345678"/>
+      </div>
+    </div>
+
+    <hr class="admin-sep"/>
+
+    <!-- Proyectos -->
+    <span class="admin-section-label">Proyectos</span>
+    <div class="admin-proj-list" id="admin-proj-list"></div>
+    <button class="add-proj-btn" onclick="addProject()">+ Agregar proyecto</button>
+
+    <button class="save-btn" onclick="saveAll()">Guardar todos los cambios</button>
+    <p class="admin-msg" id="admin-msg"></p>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     NAV
+══════════════════════════════ -->
+<nav class="nav">
+  <a href="#inicio" class="nav-logo">
+    <span class="studio-name">Studio Arch</span>
+  </a>
+  <div class="nav-right">
+    <button class="hamburger" id="hamburger" aria-label="Menú">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════
+     MENU OVERLAY
+══════════════════════════════ -->
+<div class="menu-overlay" id="menu-overlay">
+  <nav class="menu-links">
+    <a href="#inicio"    class="menu-link" data-section="inicio">Inicio</a>
+    <a href="#proyectos" class="menu-link" data-section="proyectos">Proyectos</a>
+    <a href="#nosotros"  class="menu-link" data-section="nosotros">Nosotros</a>
+    <a href="#servicios" class="menu-link" data-section="servicios">Servicios</a>
+    <a href="#contacto"  class="menu-link" data-section="contacto">Contacto</a>
+  </nav>
+  <div class="menu-footer">
+    <div class="menu-social">
+      <a id="social-instagram" href="#" target="_blank" rel="noopener" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>
+      <a id="social-behance" href="#" target="_blank" rel="noopener" style="display:none"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;flex-shrink:0"><path d="M22 7H16V5h6v2zm-3 2c-2.8 0-5 2.2-5 5s2.2 5 5 5c2 0 3.7-1.1 4.5-2.8H21c-.6.8-1.5 1.3-2.5 1.3-1.5 0-2.7-1-3-2.5H24c.1-.3.1-.7.1-1 0-2.8-2.2-5-5.1-5zm-2.5 4c.3-1.1 1.3-2 2.5-2s2.2.9 2.5 2h-5zM2 5v14h8c2.8 0 5-2.2 5-4.8 0-1.6-.8-2.9-2-3.7.7-.7 1.1-1.7 1.1-2.8C14.1 6.2 12.4 5 10 5H2zm5.5 5.5H10c.9 0 1.5.6 1.5 1.5S10.9 13.5 10 13.5H7.5v-3zm0 5H10c1.1 0 2 .9 2 2s-.9 2-2 2H7.5v-4z"/></svg> Behance</a>
+      <a id="social-vimeo" href="#" target="_blank" rel="noopener" style="display:none"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;flex-shrink:0"><path d="M23.977 6.416c-.105 2.338-1.739 5.543-4.894 9.609-3.268 4.247-6.026 6.37-8.29 6.37-1.409 0-2.578-1.294-3.553-3.881l-1.94-7.1c-.719-2.584-1.488-3.878-2.303-3.878-.179 0-.806.378-1.876 1.132L0 7.397c1.185-1.044 2.351-2.087 3.498-3.13C5.005 2.953 6.086 2.073 6.787 2.179c1.673 0 2.703 1.294 3.093 3.881.417 2.755.68 4.667.792 5.729.438 2.398 1.099 3.596 1.698 3.596.479 0 1.198-.795 2.158-2.387.959-1.592 1.478-2.924 1.56-3.997.139-1.514-.409-2.275-1.635-2.275-.576 0-1.22.195-1.899.576 1.219-4.063 3.554-6.04 7.008-5.934 2.558.101 3.808 1.719 3.415 5.048z"/></svg> Vimeo</a>
+    </div>
+    <span class="menu-follow">Follow us</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     MAIN
+══════════════════════════════ -->
+<main>
+
+  <!-- HERO -->
+  <section id="inicio">
+    <div class="hero-bg" id="hero-bg">
+      <!-- Video (si hay) -->
+      <video id="hero-video" class="hero-video" autoplay muted loop playsinline
+        style="display:none"></video>
+      <!-- Carrusel fotos -->
+      <div id="hero-slides"></div>
+    </div>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <p class="hero-label" id="hero-label-text">Proyecto destacado</p>
+      <h1 class="hero-title" id="hero-title-text">Espacio que<br><em>habla</em> por sí solo.</h1>
+      <p class="hero-scroll">Scroll para explorar</p>
+    </div>
+    <div class="hero-dots" id="hero-dots"></div>
+  </section>
+
+  <!-- PROYECTOS -->
+  <section id="proyectos">
+    <div style="padding:0 0 4rem;display:flex;align-items:baseline;justify-content:space-between;border-bottom:1px solid var(--lgray);margin-bottom:4rem" class="reveal">
+      <div>
+        <p class="section-label">Nuestro trabajo</p>
+        <h2 class="section-title" style="margin-top:.5rem">Proyectos</h2>
+      </div>
+      <span style="font-size:11px;color:var(--gray)" id="proj-count"></span>
+    </div>
+    <div class="projects-grid" id="projects-grid"></div>
+  </section>
+
+  <!-- NOSOTROS -->
+  <section id="nosotros">
+    <div class="about-image-side">
+      <img id="about-img" src="https://images.unsplash.com/photo-1545665277-5937489579f2?w=900&q=85" alt="Estudio"/>
+      <div class="about-gold-line"></div>
+    </div>
+    <div class="about-text-side">
+      <p class="section-label" id="about-eyebrow">Quiénes somos</p>
+      <h2 class="about-title reveal" id="about-title">Diseño que<br>nace del <em>lugar.</em></h2>
+      <p class="about-body reveal" id="about-bio1">Somos un estudio de arquitectura fundado con la convicción de que cada proyecto merece una respuesta única. Trabajamos en la intersección del rigor técnico y la sensibilidad estética, explorando cómo la arquitectura puede transformar la experiencia humana del espacio.</p>
+      <p class="about-body reveal" id="about-bio2">Nuestro proceso parte siempre del entendimiento profundo del lugar, el cliente y el programa. Creemos en la conversación prolongada antes del primer trazo.</p>
+      <div class="about-stats reveal" id="about-stats-wrap">
+        <div><p class="stat-num" id="stat-num1">47</p><p class="stat-lbl" id="stat-lbl1">Proyectos</p></div>
+        <div><p class="stat-num" id="stat-num2">12</p><p class="stat-lbl" id="stat-lbl2">Años</p></div>
+        <div><p class="stat-num" id="stat-num3">8</p><p class="stat-lbl" id="stat-lbl3">Premios</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICIOS -->
+  <section id="servicios">
+    <div class="section-eyebrow reveal">
+      <div>
+        <p class="section-label" id="services-eyebrow">Lo que ofrecemos</p>
+        <h2 class="section-title" style="margin-top:.5rem">Servicios</h2>
+      </div>
+    </div>
+    <div class="services-grid" id="services-grid">
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section id="contacto">
+    <div class="contact-left">
+      <p class="section-label" id="contact-label-el">Hablemos</p>
+      <h2 class="contact-title reveal" id="contact-title-el">¿Tenés un<br>proyecto en<br><em>mente?</em></h2>
+      <div class="contact-details" id="contact-details-el">
+        <div class="contact-row reveal"><span class="contact-row-label">Email</span><span class="contact-row-value">hola@studioarch.com.ar</span></div>
+        <div class="contact-row reveal"><span class="contact-row-label">Teléfono</span><span class="contact-row-value">+54 11 4XXX-XXXX</span></div>
+        <div class="contact-row reveal"><span class="contact-row-label">Estudio</span><span class="contact-row-value">Buenos Aires, Argentina</span></div>
+        <div class="contact-row reveal"><span class="contact-row-label">Horario</span><span class="contact-row-value">Lun – Vie, 9:00 – 18:00</span></div>
+        <div id="contact-social-row" class="contact-row" style="flex-direction:row;gap:1.5rem;align-items:center;border-bottom:none;flex-wrap:wrap">
+          <a id="footer-instagram" href="#" target="_blank" rel="noopener" style="font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);transition:opacity .2s;display:none;align-items:center;gap:.5rem"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;flex-shrink:0"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg> Instagram</a>
+          <a id="footer-behance" href="#" target="_blank" rel="noopener" style="font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);transition:opacity .2s;display:none;align-items:center;gap:.5rem"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;flex-shrink:0"><path d="M22 7H16V5h6v2zm-3 2c-2.8 0-5 2.2-5 5s2.2 5 5 5c2 0 3.7-1.1 4.5-2.8H21c-.6.8-1.5 1.3-2.5 1.3-1.5 0-2.7-1-3-2.5H24c.1-.3.1-.7.1-1 0-2.8-2.2-5-5.1-5zm-2.5 4c.3-1.1 1.3-2 2.5-2s2.2.9 2.5 2h-5zM2 5v14h8c2.8 0 5-2.2 5-4.8 0-1.6-.8-2.9-2-3.7.7-.7 1.1-1.7 1.1-2.8C14.1 6.2 12.4 5 10 5H2zm5.5 5.5H10c.9 0 1.5.6 1.5 1.5S10.9 13.5 10 13.5H7.5v-3zm0 5H10c1.1 0 2 .9 2 2s-.9 2-2 2H7.5v-4z"/></svg> Behance</a>
+          <a id="footer-vimeo" href="#" target="_blank" rel="noopener" style="font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);transition:opacity .2s;display:none;align-items:center;gap:.5rem"><svg viewBox="0 0 24 24" fill="currentColor" style="width:14px;height:14px;flex-shrink:0"><path d="M22.396 7.164c-.093 2.026-1.507 4.799-4.245 8.32C15.322 19.16 12.928 21 10.97 21c-1.214 0-2.24-1.12-3.08-3.36l-1.68-6.16C5.594 9.24 4.99 8 4.36 8c-.145 0-.65.308-1.514.92L2 7.697c.945-.83 2.652-2.257 3.786-3.11C7.207 3.523 8.316 2.85 9.06 2.85c1.652 0 2.668 1.248 3.05 3.744.413 2.668.7 4.328.862 4.98.48 2.176 1.006 3.262 1.58 3.262.448 0 1.12-.71 2.016-2.128.895-1.42 1.372-2.502 1.43-3.248.127-1.232-.355-1.848-1.447-1.848-.516 0-1.048.12-1.594.355 1.057-3.468 3.087-5.152 6.09-5.053 2.22.061 3.267 1.507 3.149 4.046z"/></svg> Vimeo</a>
+        </div>
+      </div>
+    </div>
+    <div class="contact-right">
+      <form class="contact-form" id="contact-form">
+        <div class="form-row">
+          <div class="form-group"><label for="f-nombre">Nombre</label><input id="f-nombre" type="text" placeholder="Tu nombre" required/></div>
+          <div class="form-group"><label for="f-email">Email</label><input id="f-email" type="email" placeholder="tu@email.com" required/></div>
+        </div>
+        <div class="form-group">
+          <label for="f-tipo">Tipo de proyecto</label>
+          <select id="f-tipo">
+            <option value="">Seleccioná</option>
+            <option>Vivienda unifamiliar</option>
+            <option>Departamento / Reforma</option>
+            <option>Espacio comercial</option>
+            <option>Oficinas</option>
+            <option>Consultoría</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group"><label for="f-mensaje">Mensaje</label><textarea id="f-mensaje" placeholder="Contanos sobre tu proyecto, ubicación, superficie estimada..." required></textarea></div>
+        <button type="submit" class="btn-submit">Enviar consulta</button>
+        <p class="form-success" id="form-success">✓ Mensaje enviado. Nos ponemos en contacto a la brevedad.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <span class="footer-logo studio-name">Studio Arch</span>
+  <div class="footer-links">
+    <a href="#inicio">Inicio</a>
+    <a href="#proyectos">Proyectos</a>
+    <a href="#nosotros">Nosotros</a>
+    <a href="#servicios">Servicios</a>
+    <a href="#contacto">Contacto</a>
+  </div>
+  <span class="footer-copy studio-name-copy">© 2025 Studio Arch. Todos los derechos reservados.</span>
+</footer>
+
+<!-- WHATSAPP BUBBLE -->
+<a id="wa-bubble" href="#" target="_blank" rel="noopener"
+   style="display:none;position:fixed;bottom:2rem;right:2rem;width:52px;height:52px;border-radius:50%;background:#25D366;align-items:center;justify-content:center;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:transform .2s"
+   onmouseenter="this.style.transform='scale(1.1)'" onmouseleave="this.style.transform='scale(1)'">
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox">
+  <div class="lb-bar">
+    <div class="lb-info">
+      <p class="lb-proj-tag"   id="lb-tag"></p>
+      <h2 class="lb-proj-title" id="lb-title"></h2>
+      <p class="lb-proj-loc"   id="lb-loc"></p>
+      <p class="lb-proj-description" id="lb-desc"></p>
+    </div>
+    <div class="lb-controls">
+      <span class="lb-count" id="lb-count"></span>
+      <button class="lb-close" onclick="closeLightbox()">✕ Cerrar</button>
+    </div>
+  </div>
+  <div class="lb-stage" id="lb-stage">
+    <button class="lb-nav left"  id="lb-prev" onclick="lbNav(-1)">&#8592;</button>
+    <img id="lb-img" src="" alt=""/>
+    <button class="lb-nav right" id="lb-next" onclick="lbNav(1)">&#8594;</button>
+  </div>
+  <div class="lb-strip" id="lb-strip"></div>
+</div>
+
+
+<script>
+/* ════════════════════════════════════════════════════════
+   CONFIG
+════════════════════════════════════════════════════════ */
+const ADMIN_PASSWORD = 'sofia2026'; // ← cambiá esta contraseña
+
+/* ════════════════════════════════════════════════════════
+   CLOUDINARY UPLOAD
+   - Sube a Cloudinary si está configurado
+   - Si no, guarda base64 como fallback (solo local)
+════════════════════════════════════════════════════════ */
+const CLOUDINARY_CONFIGURED =
+  CLOUDINARY_CLOUD_NAME  !== '__UNCONFIGURED__' &&
+  CLOUDINARY_UPLOAD_PRESET !== '__UNCONFIGURED__';
+
+async function uploadToCloudinary(file, onProgress) {
+  if (!CLOUDINARY_CONFIGURED) {
+    // Fallback: base64 local (como antes, solo sin Cloudinary)
+    return await readFileAsDataURL(file);
+  }
+
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  fd.append('folder', 'portfolio');
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`);
+
+    xhr.upload.onprogress = e => {
+      if (e.lengthComputable && onProgress)
+        onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        const res = JSON.parse(xhr.responseText);
+        // URL de Cloudinary con transformación automática
+        const url = res.secure_url.replace('/upload/', '/upload/q_auto,f_auto,w_1600/');
+        resolve(url);
+      } else {
+        reject(new Error(`Cloudinary error ${xhr.status}`));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Error de red al subir imagen'));
+    xhr.send(fd);
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   DATA
+════════════════════════════════════════════════════════ */
+const DEFAULT_PROJECTS = [
+  {
+    name:'Casa Mineral', type:'Vivienda unifamiliar', location:'Buenos Aires', year:'2024',
+    description:'Vivienda de 320m² implantada en lote entre medianeras. La propuesta organiza los espacios en torno a un patio central que regula la luz natural y la ventilación cruzada. Materialidad basada en hormigón visto, madera de quebracho y vidrio templado.',
+    photos:[
+      'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=1400&q=85',
+      'https://images.unsplash.com/photo-1600566752355-35792bedcfea?w=1400&q=85',
+      'https://images.unsplash.com/photo-1600210492493-0946911123ea?w=1400&q=85',
+    ]
+  },
+  {
+    name:'Oficinas Norte', type:'Espacio corporativo', location:'Rosario', year:'2023',
+    description:'Reforma integral de 800m² para empresa de tecnología. Espacios de trabajo colaborativo, salas de reunión modulares y áreas de descanso con paleta neutra y roble natural.',
+    photos:[
+      'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&q=85',
+      'https://images.unsplash.com/photo-1497366754035-f200968a6e72?w=1200&q=85',
+    ]
+  },
+  {
+    name:'Loft Palermo', type:'Reforma interior', location:'Buenos Aires', year:'2023',
+    description:'Transformación de depósito industrial en vivienda de autor. Se preservaron las estructuras de hierro original y el piso de madera dura, incorporando cocina abierta y mezzanine con doble altura.',
+    photos:[
+      'https://images.unsplash.com/photo-1613977257363-707ba9348227?w=1200&q=85',
+      'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1200&q=85',
+    ]
+  },
+  {
+    name:'Villa Serrana', type:'Vivienda de montaña', location:'Córdoba', year:'2022',
+    description:'Casa de fin de semana en las Sierras Chicas. Volumen compacto que minimiza el impacto en el terreno. Cubierta verde, paneles solares y recolección de agua de lluvia.',
+    photos:['https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&q=85']
+  },
+  {
+    name:'Café Módulo', type:'Comercial', location:'Buenos Aires', year:'2022',
+    description:'Local gastronómico de 90m² en planta baja de edificio patrimonial. Intervención reversible con módulos de madera CNC.',
+    photos:['https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=1200&q=85']
+  },
+  {
+    name:'Complejo Ribera', type:'Conjunto residencial', location:'Tigre', year:'2021',
+    description:'Conjunto de 12 viviendas en primera línea de río. Tipologías dúplex con acceso directo al muelle. Materialidad local: ladrillos de campo, madera de eucaliptus y revoques texturados.',
+    photos:[
+      'https://images.unsplash.com/photo-1591088398332-8a7791972843?w=1400&q=85',
+      'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=1200&q=85',
+    ]
+  },
+];
+
+let projects = [];
+let aboutImg = '';
+const cardIdx = {};
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem('sa_projects');
+    projects = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_PROJECTS));
+  } catch(e) {
+    projects = JSON.parse(JSON.stringify(DEFAULT_PROJECTS));
+  }
+  try { aboutImg = localStorage.getItem('sa_about') || ''; } catch(e) {}
+}
+
+function saveData() {
+  try {
+    // Guardamos solo las URLs (no base64), así el localStorage nunca se llena
+    const toSave = projects.map(p => ({ ...p }));
+    localStorage.setItem('sa_projects', JSON.stringify(toSave));
+    if (aboutImg && !aboutImg.startsWith('data:')) // solo guardar URL, no base64 pesado
+      localStorage.setItem('sa_about', aboutImg);
+    else if (aboutImg && aboutImg.startsWith('data:'))
+      localStorage.setItem('sa_about', aboutImg); // fallback sin Cloudinary
+    return true;
+  } catch(e) { return false; }
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function parseLocYear(i, val) {
+  const parts = val.split('·').map(s => s.trim());
+  projects[i].location = parts[0]||'';
+  projects[i].year     = parts[1]||'';
+}
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    if (file.size > 8*1024*1024) { reject(new Error(`"${file.name}" supera 8MB`)); return; }
+    const r = new FileReader();
+    r.onload  = ev => resolve(ev.target.result);
+    r.onerror = () => reject(new Error('Error leyendo archivo'));
+    r.readAsDataURL(file);
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   RENDER GRID
+════════════════════════════════════════════════════════ */
+let lbProjIdx = 0, lbPhotoIdx = 0;
+
+function renderGrid() {
+  const grid = document.getElementById('projects-grid');
+  const n = projects.length;
+  document.getElementById('proj-count').textContent =
+    `0${n} obra${n!==1?'s':''} seleccionada${n!==1?'s':''}`;
+
+  initHero();
+
+  grid.innerHTML = projects.map((p,i) => {
+    const photos = p.photos||[];
+    const cur    = cardIdx[i]||0;
+    const total  = photos.length;
+    const desc   = p.description||'';
+    return `
+    <div class="proj-wrap reveal" id="pw-${i}">
+      <div class="proj-card" id="pc-${i}">
+        <div class="proj-slider" id="ps-${i}" style="transform:translateX(-${cur*100}%)">
+          ${total>0
+            ? photos.map(src=>`<div class="proj-slide"><img src="${src}" alt="${esc(p.name)}" loading="lazy"/></div>`).join('')
+            : `<div class="proj-slide"><div class="proj-empty"><p class="proj-empty-lbl">Sin imágenes</p></div></div>`
+          }
+        </div>
+        ${total>1?`<div class="proj-badge">${cur+1} / ${total}</div>`:''}
+        ${total>1?`
+          <button class="proj-arrow left ${cur===0?'hidden':''}" onclick="cardNav(event,${i},-1)">&#8592;</button>
+          <button class="proj-arrow right ${cur===total-1?'hidden':''}" onclick="cardNav(event,${i},1)">&#8594;</button>
+          <div class="proj-dots">
+            ${photos.map((_,j)=>`<button class="proj-dot ${j===cur?'active':''}" onclick="cardGoTo(event,${i},${j})"></button>`).join('')}
+          </div>`:''}
+        <div class="proj-info-overlay" onclick="openLightbox(${i},${cur})">
+          <p class="proj-type">${esc(p.type)}</p>
+          <h3 class="proj-name-overlay">${esc(p.name)}</h3>
+          <p class="proj-meta-overlay">${esc(p.location)} · ${esc(p.year)}</p>
+        </div>
+        <button class="proj-ver-mas" onclick="openLightbox(${i},${cur})">
+          Ver más <span class="proj-ver-mas-arrow"></span>
+        </button>
+      </div>
+      ${desc?`
+        <div class="proj-desc-block">
+          <p class="proj-desc-eyebrow">${esc(p.type)} · ${esc(p.location)}, ${esc(p.year)}</p>
+          <p class="proj-desc-name">${esc(p.name)}</p>
+          <p class="proj-desc-text">${esc(desc)}</p>
+        </div>`:''}
+    </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.proj-wrap').forEach(el => {
+    el.classList.add('reveal');
+    revealObserver.observe(el);
+  });
+}
+
+function cardNav(e,i,dir) {
+  e.stopPropagation();
+  const total = projects[i].photos?.length||0;
+  cardIdx[i]  = Math.max(0, Math.min(total-1, (cardIdx[i]||0)+dir));
+  _updateCard(i, cardIdx[i], total);
+}
+function cardGoTo(e,i,idx) {
+  e.stopPropagation();
+  cardIdx[i]=idx;
+  _updateCard(i,idx,projects[i].photos?.length||0);
+}
+function _updateCard(i,cur,total) {
+  const slider = document.getElementById(`ps-${i}`);
+  if (slider) slider.style.transform=`translateX(-${cur*100}%)`;
+  const card = document.getElementById(`pc-${i}`);
+  if (!card) return;
+  const badge = card.querySelector('.proj-badge');
+  if (badge) badge.textContent=`${cur+1} / ${total}`;
+  card.querySelectorAll('.proj-dot').forEach((d,j)=>d.classList.toggle('active',j===cur));
+  const al=card.querySelector('.proj-arrow.left'), ar=card.querySelector('.proj-arrow.right');
+  if (al) al.classList.toggle('hidden',cur===0);
+  if (ar) ar.classList.toggle('hidden',cur===total-1);
+}
+
+/* ════════════════════════════════════════════════════════
+   LIGHTBOX
+════════════════════════════════════════════════════════ */
+function openLightbox(projIdx, photoIdx) {
+  const p = projects[projIdx];
+  if (!p.photos?.length) return;
+  lbProjIdx=projIdx; lbPhotoIdx=photoIdx??cardIdx[projIdx]??0;
+  document.getElementById('lb-tag').textContent   = p.type;
+  document.getElementById('lb-title').textContent = p.name;
+  document.getElementById('lb-loc').textContent   = `${p.location} · ${p.year}`;
+  document.getElementById('lb-desc').textContent  = p.description||'';
+  renderLBStrip(); setLBPhoto(lbPhotoIdx);
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function renderLBStrip() {
+  const p = projects[lbProjIdx];
+  document.getElementById('lb-strip').innerHTML = p.photos
+    .map((src,i)=>`<img class="lb-thumb ${i===lbPhotoIdx?'active':''}" src="${src}" onclick="setLBPhoto(${i})" loading="lazy"/>`).join('');
+}
+function setLBPhoto(idx) {
+  const p=projects[lbProjIdx]; lbPhotoIdx=idx;
+  const img=document.getElementById('lb-img');
+  img.style.opacity='0';
+  setTimeout(()=>{ img.src=p.photos[idx]; img.style.opacity='1'; },150);
+  document.getElementById('lb-count').textContent=`${idx+1} / ${p.photos.length}`;
+  document.getElementById('lb-prev').style.opacity=idx>0?'1':'0.15';
+  document.getElementById('lb-next').style.opacity=idx<p.photos.length-1?'1':'0.15';
+  document.querySelectorAll('.lb-thumb').forEach((t,i)=>t.classList.toggle('active',i===idx));
+  document.querySelectorAll('.lb-thumb')[idx]?.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+}
+function lbNav(dir) {
+  const next=lbPhotoIdx+dir;
+  if (next>=0&&next<projects[lbProjIdx].photos.length) setLBPhoto(next);
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow='';
+}
+
+/* ════════════════════════════════════════════════════════
+   ADMIN
+════════════════════════════════════════════════════════ */
+function openLoginPrompt() {
+  openAdmin();
+}
+function closeLogin() {
+  document.getElementById('login-overlay').classList.remove('open');
+  document.getElementById('login-input').value='';
+  document.getElementById('login-error').textContent='';
+}
+function checkLogin() {
+  closeLogin();
+  openAdmin();
+}
+function openAdmin() {
+  document.getElementById('admin-overlay').classList.add('open');
+  renderAdminList();
+  const t=document.getElementById('about-thumb-preview');
+  if (aboutImg) { t.src=aboutImg; t.style.display='block'; }
+  // Mostrar/ocultar aviso Cloudinary
+  populateHeroInputs();
+  populateAboutInputs();
+  populateFontInputs();
+  populateFontSizeInputs();
+  populateColorInputs();
+  populateStyleInputs();
+  populateContactInputs();
+  renderAdminServices();
+  document.getElementById('cloudinary-notice').style.display =
+    CLOUDINARY_CONFIGURED ? 'none' : 'block';
+}
+function closeAdmin() {
+  document.getElementById('admin-overlay').classList.remove('open');
+  const panel = document.getElementById('mobile-preview-panel');
+  if (panel) panel.style.display = 'none';
+  mobilePreviewOpen = false;
+  const btn = document.getElementById('mobile-preview-btn');
+  if (btn) { btn.style.borderColor = ''; btn.style.color = ''; }
+}
+
+/* ── RENDER ADMIN LIST ── */
+function renderAdminList() {
+  document.getElementById('admin-proj-list').innerHTML = projects.map((p,i)=>`
+    <div class="admin-proj-card">
+      <div class="admin-proj-fields">
+        <div class="admin-field-group">
+          <span class="admin-field-label">Nombre</span>
+          <input class="admin-field" value="${esc(p.name)}" placeholder="Nombre del proyecto"
+            onchange="projects[${i}].name=this.value"/>
+        </div>
+        <div class="admin-field-group">
+          <span class="admin-field-label">Tipo</span>
+          <input class="admin-field" value="${esc(p.type)}" placeholder="Ej: Vivienda unifamiliar"
+            onchange="projects[${i}].type=this.value"/>
+        </div>
+        <div class="admin-field-group">
+          <span class="admin-field-label">Ciudad · Año</span>
+          <input class="admin-field" value="${esc(p.location+' · '+p.year)}" placeholder="Ciudad · Año"
+            onchange="parseLocYear(${i},this.value)"/>
+        </div>
+        <button class="del-proj-btn" onclick="deleteProject(${i})">Eliminar</button>
+      </div>
+      <div class="admin-desc-group">
+        <span class="admin-field-label">Descripción</span>
+        <textarea class="admin-textarea" placeholder="Describí el proyecto..."
+          onchange="projects[${i}].description=this.value">${esc(p.description||'')}</textarea>
+      </div>
+      <p class="admin-photos-label">
+        Fotos (${(p.photos||[]).length}) — primera foto = portada · ★ para cambiar portada
+        ${CLOUDINARY_CONFIGURED?'· ☁️ Se suben a Cloudinary':'· ⚠️ Sin Cloudinary (solo local)'}
+      </p>
+      <div class="admin-photos-grid" id="photos-grid-${i}">
+        ${(p.photos||[]).map((src,j)=>`
+          <div class="photo-thumb-wrap ${j===0?'is-cover':''}">
+            <img src="${src}" alt="Foto ${j+1}"/>
+            ${j===0
+              ?'<div class="photo-cover-badge">Portada</div>'
+              :`<button class="photo-star-btn" onclick="setCover(${i},${j})" title="Usar como portada">★</button>`}
+            <button class="photo-rm-btn" onclick="removePhoto(${i},${j})" title="Eliminar">✕</button>
+          </div>`).join('')}
+        <input type="file" accept="image/png,image/jpeg,image/webp" multiple
+          class="file-input" id="photos-input-${i}"
+          onchange="handlePhotos(event,${i})"/>
+        <button class="add-photos-btn" id="add-btn-${i}"
+          onclick="document.getElementById('photos-input-${i}').click()">
+          <span class="add-photos-icon">+</span>
+          <span>Subir fotos</span>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ── FOTOS — upload con progreso ── */
+async function handlePhotos(e, projIdx) {
+  const files = Array.from(e.target.files);
+  if (!files.length) return;
+
+  const addBtn = document.getElementById(`add-btn-${projIdx}`);
+  const grid   = document.getElementById(`photos-grid-${projIdx}`);
+  const msg    = document.getElementById('admin-msg');
+
+  addBtn.disabled = true;
+
+  // Mostrar spinners por cada archivo
+  const spinners = files.map(f => {
+    const el = document.createElement('div');
+    el.className = 'photo-thumb-uploading';
+    el.id = `spinner-${projIdx}-${f.name.replace(/\W/g,'_')}`;
+    el.innerHTML = `<div class="upload-spinner"></div><span class="uploading-name">${f.name.substring(0,14)}…</span>`;
+    addBtn.before(el);
+    return { el, f };
+  });
+
+  let loaded=0, errors=[];
+
+  for (const { el, f } of spinners) {
+    try {
+      msg.textContent = `Subiendo ${f.name}…`;
+      const url = await uploadToCloudinary(f, pct => {
+        const spinner = el.querySelector('.upload-spinner');
+        if (spinner) spinner.style.borderTopColor = pct>50 ? 'var(--gold)' : '#555';
+      });
+      if (!projects[projIdx].photos) projects[projIdx].photos=[];
+      projects[projIdx].photos.push(url);
+      loaded++;
+    } catch(err) {
+      errors.push(err.message);
+    }
+    el.remove();
+  }
+
+  addBtn.disabled = false;
+  renderAdminList();
+
+  if (errors.length)
+    msg.textContent = `⚠ Algunos errores: ${errors.join('; ')}`;
+  else
+    msg.textContent = `✓ ${loaded} foto${loaded>1?'s':''} subida${loaded>1?'s':''}. Guardá los cambios.`;
+
+  e.target.value='';
+}
+
+function removePhoto(projIdx, photoIdx) {
+  projects[projIdx].photos.splice(photoIdx,1);
+  renderAdminList();
+}
+function setCover(projIdx, photoIdx) {
+  const [photo]=projects[projIdx].photos.splice(photoIdx,1);
+  projects[projIdx].photos.unshift(photo);
+  renderAdminList();
+}
+
+/* ── FOTO NOSOTROS ── */
+async function handleAboutPhoto(e) {
+  const file=e.target.files[0];
+  if (!file) return;
+  const msg=document.getElementById('admin-msg');
+  msg.textContent='Subiendo foto…';
+  try {
+    const url=await uploadToCloudinary(file);
+    aboutImg=url;
+    const t=document.getElementById('about-thumb-preview');
+    t.src=aboutImg; t.style.display='block';
+    document.getElementById('about-img').src=aboutImg;
+    dbSet('about_img', url);
+    msg.textContent='✓ Foto de "Nosotros" guardada en la nube.';
+  } catch(err) {
+    msg.textContent=`⚠ ${err.message}`;
+  }
+}
+
+/* ── REDES ── */
+function saveNetworks() {
+  const nets={
+    instagram: document.getElementById('input-instagram').value.trim(),
+    behance: document.getElementById('input-behance').value.trim(),
+    vimeo:     document.getElementById('input-vimeo').value.trim(),
+    whatsapp:  document.getElementById('input-whatsapp').value.trim(),
+  };
+  try { localStorage.setItem('sa_networks',JSON.stringify(nets)); } catch(e) {}
+  applyNetworks(nets);
+}
+function loadNetworks() {
+  try { const raw=localStorage.getItem('sa_networks'); if(raw) applyNetworks(JSON.parse(raw)); } catch(e) {}
+}
+function applyNetworks(nets) {
+  const ids = { instagram:'social-instagram', behance:'social-behance', vimeo:'social-vimeo' };
+  for (const [key,id] of Object.entries(ids)) {
+    const el=document.getElementById(id);
+    if(el){ el.href=nets[key]||'#'; el.style.display=nets[key]?'flex':'none'; }
+  }
+  const bubble=document.getElementById('wa-bubble');
+  if(bubble){ if(nets.whatsapp){ bubble.href=`https://wa.me/${nets.whatsapp.replace(/\D/g,'')}`; bubble.style.display='flex'; } else bubble.style.display='none'; }
+  const fMap = { instagram:'footer-instagram', behance:'footer-behance', vimeo:'footer-vimeo' };
+  for (const [key,id] of Object.entries(fMap)) {
+    const el=document.getElementById(id);
+    if(el){ el.href=nets[key]||'#'; el.style.display=nets[key]?'flex':'none'; }
+  }
+  ['instagram','behance','vimeo','whatsapp'].forEach(k => {
+    const el=document.getElementById(`input-${k}`);
+    if(el) el.value=nets[k]||'';
+  });
+}
+
+/* ── CRUD PROYECTOS ── */
+function addProject() {
+  projects.push({name:'Nuevo Proyecto',type:'Tipo',location:'Ciudad',year:'2025',description:'',photos:[]});
+  renderAdminList();
+  document.getElementById('admin-proj-list').lastElementChild
+    .scrollIntoView({behavior:'smooth',block:'start'});
+}
+function deleteProject(i) {
+  if (!confirm(`¿Eliminar "${projects[i].name}"?`)) return;
+  projects.splice(i,1); renderAdminList();
+}
+
+/* ── GUARDAR ── */
+// saveAll replaced by async version above
+
+/* ════════════════════════════════════════════════════════
+   FAVICON / NOMBRE / ABOUT
+════════════════════════════════════════════════════════ */
+function setFavicon(src) {
+  let link=document.querySelector("link[rel~='icon']");
+  if(!link){ link=document.createElement('link'); link.rel='icon'; document.head.appendChild(link); }
+  link.href=src;
+}
+function handleFaviconUpload(e) {
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{ const src=ev.target.result; setFavicon(src); try{localStorage.setItem('sa_favicon',src);}catch(err){} document.getElementById('favicon-preview').src=src; document.getElementById('favicon-preview').style.display='block'; };
+  r.readAsDataURL(file);
+}
+function loadFavicon() {
+  try { const src=localStorage.getItem('sa_favicon'); if(src){ setFavicon(src); const p=document.getElementById('favicon-preview'); if(p){p.src=src;p.style.display='block';} } } catch(e) {}
+}
+function loadStudioName() {
+  try { const name=localStorage.getItem('sa_studio_name'); if(name) applyStudioName(name); } catch(e) {}
+}
+function applyStudioName(name) {
+  document.querySelectorAll('.studio-name').forEach(el=>el.textContent=name);
+  document.title=name+' — Portfolio';
+}
+function saveStudioName() {
+  const name=document.getElementById('input-studio-name').value.trim();
+  if(!name) return;
+  try{localStorage.setItem('sa_studio_name',name);}catch(e){}
+  applyStudioName(name);
+  dbSet('studio_name', name);
+}
+
+/* ════════════════════════════════════════════════════════
+   NAV / CURSOR / SCROLL
+════════════════════════════════════════════════════════ */
+
+function loadAboutData() {
+  try {
+    const raw = localStorage.getItem('sa_about_data');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.eyebrow) { const el=document.getElementById('about-eyebrow'); if(el) el.textContent=d.eyebrow; }
+    if (d.title)   { const el=document.getElementById('about-title');   if(el) el.innerHTML=d.title; }
+    if (d.bio1)    { const el=document.getElementById('about-bio1');    if(el) el.textContent=d.bio1; }
+    if (d.bio2)    { const el=document.getElementById('about-bio2');    if(el) el.textContent=d.bio2; }
+    if (d.sn1)     { const el=document.getElementById('stat-num1');     if(el) el.textContent=d.sn1; }
+    if (d.sl1)     { const el=document.getElementById('stat-lbl1');     if(el) el.textContent=d.sl1; }
+    if (d.sn2)     { const el=document.getElementById('stat-num2');     if(el) el.textContent=d.sn2; }
+    if (d.sl2)     { const el=document.getElementById('stat-lbl2');     if(el) el.textContent=d.sl2; }
+    if (d.sn3)     { const el=document.getElementById('stat-num3');     if(el) el.textContent=d.sn3; }
+    if (d.sl3)     { const el=document.getElementById('stat-lbl3');     if(el) el.textContent=d.sl3; }
+  } catch(e) {}
+}
+
+function saveAboutData() {
+  const g = id => { const el=document.getElementById(id); return el?el.value.trim():''; };
+  const d = {
+    eyebrow: g('input-about-eyebrow'),
+    title:   g('input-about-title'),
+    bio1:    g('input-about-bio1'),
+    bio2:    g('input-about-bio2'),
+    sn1: g('input-stat-num1'), sl1: g('input-stat-lbl1'),
+    sn2: g('input-stat-num2'), sl2: g('input-stat-lbl2'),
+    sn3: g('input-stat-num3'), sl3: g('input-stat-lbl3'),
+  };
+  try { localStorage.setItem('sa_about_data', JSON.stringify(d)); } catch(e) {}
+  loadAboutData();
+}
+
+function populateAboutInputs() {
+  try {
+    const raw = localStorage.getItem('sa_about_data');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    const pairs = [
+      ['input-about-eyebrow', d.eyebrow], ['input-about-title', d.title],
+      ['input-about-bio1', d.bio1], ['input-about-bio2', d.bio2],
+      ['input-stat-num1', d.sn1], ['input-stat-lbl1', d.sl1],
+      ['input-stat-num2', d.sn2], ['input-stat-lbl2', d.sl2],
+      ['input-stat-num3', d.sn3], ['input-stat-lbl3', d.sl3],
+    ];
+    pairs.forEach(([id, val]) => { const el=document.getElementById(id); if(el&&val) el.value=val; });
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════════════════════
+   SERVICES
+════════════════════════════════════════════════════════ */
+const DEFAULT_SERVICES = [
+  { title:'Proyecto de Arquitectura', desc:'Diseño integral desde anteproyecto hasta documentación ejecutiva. Viviendas, colectivos y espacios comerciales.' },
+  { title:'Diseño de Interiores',     desc:'Interiorismo con identidad propia. Selección de materiales, mobiliario y acabados para espacios que expresan su función.' },
+  { title:'Dirección de Obra',        desc:'Acompañamiento técnico en todo el proceso constructivo. Control de calidad y coordinación de contratistas.' },
+  { title:'Reformas y Reciclajes',    desc:'Transformación de espacios existentes respetando la memoria constructiva del edificio.' },
+  { title:'Consultoría Técnica',      desc:'Asesoramiento en normativa, habilitaciones y permisos. Gestión ante organismos oficiales.' },
+  { title:'Visualización 3D',         desc:'Renders fotorrealistas y recorridos virtuales para comunicar el proyecto antes de construirlo.' },
+];
+
+let services = [];
+
+function loadServices() {
+  try {
+    const raw = localStorage.getItem('sa_services');
+    services = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(DEFAULT_SERVICES));
+  } catch(e) { services = JSON.parse(JSON.stringify(DEFAULT_SERVICES)); }
+}
+
+function saveServices() {
+  try { localStorage.setItem('sa_services', JSON.stringify(services)); } catch(e) {}
+}
+
+function renderServicesGrid() {
+  const grid = document.getElementById('services-grid');
+  if (!grid) return;
+  grid.innerHTML = services.map((s, i) =>
+    `<div class="service-item reveal">
+      <p class="service-num">${String(i+1).padStart(2,'0')}</p>
+      <h3 class="service-title">${esc(s.title)}</h3>
+      <p class="service-desc">${esc(s.desc)}</p>
+    </div>`
+  ).join('');
+  grid.querySelectorAll('.service-item').forEach(el => revealObserver.observe(el));
+}
+
+function renderAdminServices() {
+  document.getElementById('admin-services-list').innerHTML = services.map((s,i) => `
+    <div class="admin-proj-card" style="display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:start">
+      <div style="display:flex;flex-direction:column;gap:1rem">
+        <div class="admin-field-group">
+          <span class="admin-field-label">Título</span>
+          <input class="admin-field" value="${esc(s.title)}" placeholder="Nombre del servicio"
+            onchange="services[${i}].title=this.value"/>
+        </div>
+        <div class="admin-field-group">
+          <span class="admin-field-label">Descripción</span>
+          <textarea class="admin-textarea" placeholder="Describí el servicio..."
+            onchange="services[${i}].desc=this.value">${esc(s.desc)}</textarea>
+        </div>
+      </div>
+      <button class="del-proj-btn" style="margin-top:1.5rem" onclick="deleteService(${i})">Eliminar</button>
+    </div>
+  `).join('');
+}
+
+function addService() {
+  services.push({ title:'Nuevo servicio', desc:'' });
+  renderAdminServices();
+  document.getElementById('admin-services-list').lastElementChild
+    .scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function deleteService(i) {
+  if (!confirm(`¿Eliminar "${services[i].title}"?`)) return;
+  services.splice(i,1);
+  renderAdminServices();
+}
+
+/* ════════════════════════════════════════════════════════
+   HERO — video + carrusel
+════════════════════════════════════════════════════════ */
+let heroSlides = [];
+let heroIdx = 0;
+let heroTimer = null;
+
+function initHero() {
+  const heroData = loadHeroData();
+
+  // Si hay video, usarlo
+  const video = document.getElementById('hero-video');
+  if (heroData.videoUrl) {
+    video.style.display = 'block';
+    video.src = heroData.videoUrl;
+    video.addEventListener('canplay', () => video.classList.add('loaded'), { once: true });
+  }
+
+  // Armar slides con fotos del hero o del primer proyecto
+  const photos = heroData.photos && heroData.photos.length > 0
+    ? heroData.photos
+    : (projects[0]?.photos || []);
+
+  heroSlides = photos;
+  const slidesEl = document.getElementById('hero-slides');
+  const dotsEl   = document.getElementById('hero-dots');
+
+  if (!slidesEl || photos.length === 0) return;
+
+  slidesEl.innerHTML = photos.map((src, i) =>
+    `<div class="hero-slide ${i===0?'active':''}" id="hs-${i}">
+      <img src="${src}" alt="Hero ${i+1}" loading="${i===0?'eager':'lazy'}"/>
+    </div>`
+  ).join('');
+
+  if (photos.length > 1) {
+    dotsEl.innerHTML = photos.map((_,i) =>
+      `<button class="hero-dot ${i===0?'active':''}" onclick="heroGoTo(${i})"></button>`
+    ).join('');
+    heroTimer = setInterval(heroNext, 3000);
+  }
+
+  // Titulo del hero
+  if (heroData.label) {
+    const el = document.getElementById('hero-label-text');
+    if (el) el.textContent = heroData.label;
+  }
+  if (heroData.title) {
+    const el = document.getElementById('hero-title-text');
+    if (el) el.innerHTML = heroData.title;
+  }
+}
+
+function heroNext() {
+  heroGoTo((heroIdx + 1) % heroSlides.length);
+}
+
+function heroGoTo(idx) {
+  const prev = document.getElementById(`hs-${heroIdx}`);
+  const next = document.getElementById(`hs-${idx}`);
+  if (prev) prev.classList.remove('active');
+  if (next) next.classList.add('active');
+  document.querySelectorAll('.hero-dot').forEach((d,i) =>
+    d.classList.toggle('active', i === idx)
+  );
+  heroIdx = idx;
+}
+
+function loadHeroData() {
+  try {
+    const raw = localStorage.getItem('sa_hero');
+    return raw ? JSON.parse(raw) : {};
+  } catch(e) { return {}; }
+}
+
+function saveHeroData(data) {
+  try { localStorage.setItem('sa_hero', JSON.stringify(data)); } catch(e) {}
+}
+
+/* ── HERO ADMIN ── */
+function populateHeroInputs() {
+  const d = loadHeroData();
+  const lbl = document.getElementById('input-hero-label');
+  const ttl = document.getElementById('input-hero-title');
+  if (lbl && d.label) lbl.value = d.label;
+  if (ttl && d.title) ttl.value = d.title;
+
+  const rmBtn = document.getElementById('hero-video-remove');
+  const status = document.getElementById('hero-video-status');
+  if (d.videoUrl) {
+    if (rmBtn) rmBtn.style.display = '';
+    if (status) status.textContent = '✓ Video cargado';
+  }
+
+  renderHeroPhotosAdmin();
+}
+
+function renderHeroPhotosAdmin() {
+  const d = loadHeroData();
+  const photos = d.photos || [];
+  const grid = document.getElementById('hero-photos-grid');
+  if (!grid) return;
+  const addBtn = `
+    <input type="file" accept="image/png,image/jpeg,image/webp" multiple
+      class="file-input" id="hero-photos-input"
+      onchange="handleHeroPhotos(event)"/>
+    <button class="add-photos-btn" id="hero-add-btn"
+      onclick="document.getElementById('hero-photos-input').click()">
+      <span class="add-photos-icon">+</span><span>Subir fotos</span>
+    </button>`;
+  grid.innerHTML = photos.map((src, i) => `
+    <div class="photo-thumb-wrap">
+      <img src="${src}" alt="Hero ${i+1}"/>
+      <button class="photo-rm-btn" onclick="removeHeroPhoto(${i})">✕</button>
+    </div>`).join('') + addBtn;
+}
+
+async function handleHeroVideo(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const status = document.getElementById('hero-video-status');
+  const rmBtn  = document.getElementById('hero-video-remove');
+  status.textContent = 'Subiendo video…';
+
+  // Video goes directly as base64 (Cloudinary free doesn't include video transforms)
+  // For large files warn user
+  if (file.size > 50 * 1024 * 1024) {
+    status.textContent = '⚠ El video supera 50MB. Comprimilo primero.';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const d = loadHeroData();
+    d.videoUrl = ev.target.result;
+    saveHeroData(d);
+    status.textContent = '✓ Video guardado localmente.';
+    if (rmBtn) rmBtn.style.display = '';
+    // Update live
+    const vid = document.getElementById('hero-video');
+    if (vid) { vid.style.display='block'; vid.src=ev.target.result; vid.addEventListener('canplay', ()=>vid.classList.add('loaded'),{once:true}); }
+    document.getElementById('admin-msg').textContent = '✓ Video cargado. Guardá los cambios.';
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function removeHeroVideo() {
+  const d = loadHeroData();
+  delete d.videoUrl;
+  saveHeroData(d);
+  const vid = document.getElementById('hero-video');
+  if (vid) { vid.src=''; vid.style.display='none'; vid.classList.remove('loaded'); }
+  const rmBtn  = document.getElementById('hero-video-remove');
+  const status = document.getElementById('hero-video-status');
+  if (rmBtn)  rmBtn.style.display = 'none';
+  if (status) status.textContent = '';
+}
+
+async function handleHeroPhotos(e) {
+  const files = Array.from(e.target.files); if (!files.length) return;
+  const msg = document.getElementById('admin-msg');
+  msg.textContent = 'Subiendo fotos hero…';
+  const d = loadHeroData();
+  if (!d.photos) d.photos = [];
+  for (const f of files) {
+    try {
+      const url = await uploadToCloudinary(f);
+      d.photos.push(url);
+    } catch(err) { msg.textContent = `⚠ ${err.message}`; }
+  }
+  saveHeroData(d);
+  renderHeroPhotosAdmin();
+  msg.textContent = '✓ Fotos hero agregadas. Guardá los cambios.';
+  e.target.value = '';
+}
+
+function removeHeroPhoto(i) {
+  const d = loadHeroData();
+  d.photos.splice(i, 1);
+  saveHeroData(d);
+  renderHeroPhotosAdmin();
+}
+
+function saveHeroTexts() {
+  const d = loadHeroData();
+  const lbl = document.getElementById('input-hero-label');
+  const ttl = document.getElementById('input-hero-title');
+  if (lbl) d.label = lbl.value.trim();
+  if (ttl) d.title = ttl.value.trim();
+  saveHeroData(d);
+}
+
+/* ════════════════════════════════════════════════════════
+   SUPABASE — guardar y cargar todo
+   Tabla: portfolio_data (key TEXT, value TEXT)
+════════════════════════════════════════════════════════ */
+
+
+/* ── SUPABASE CONNECTION TEST ── */
+async function testSupabaseConnection() {
+  try {
+    const res = await fetch(SUPABASE_URL + '/rest/v1/portfolio_data?limit=1', {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+      }
+    });
+    console.log('Supabase test status:', res.status);
+    const text = await res.text();
+    console.log('Supabase test response:', text);
+    if (res.status === 200) {
+      console.log('✅ Supabase conectado correctamente');
+      return true;
+    } else {
+      console.error('❌ Supabase error:', res.status, text);
+      return false;
+    }
+  } catch(e) {
+    console.error('❌ Supabase fetch error:', e);
+    return false;
+  }
+}
+
+async function dbGet(key) {
+  try {
+    const data = await sbFetch('portfolio_data?key=eq.' + encodeURIComponent(key) + '&select=value&limit=1');
+    if (!data || data.length === 0) return null;
+    return JSON.parse(data[0].value);
+  } catch(e) { console.error('dbGet error:', e); return null; }
+}
+
+async function dbSet(key, value) {
+  try {
+    const res = await sbFetch('portfolio_data', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates',
+      body: JSON.stringify({ key, value: JSON.stringify(value), updated_at: new Date().toISOString() })
+    });
+    return true;
+  } catch(e) { console.error('dbSet error:', e); return false; }
+}
+
+async function loadAllFromDB() {
+  try {
+    const data = await sbFetch('portfolio_data?select=key,value');
+    if (!data) return {};
+    const result = {};
+    data.forEach(row => {
+      try { result[row.key] = JSON.parse(row.value); } catch(e) {}
+    });
+    return result;
+  } catch(e) { console.error('loadAllFromDB error:', e); return {}; }
+}
+
+async function saveAllToDB(allData) {
+  try {
+    const rows = Object.entries(allData)
+      .filter(([k, v]) => v !== '' && v !== null && v !== undefined)
+      .map(([key, value]) => ({
+        key,
+        value: JSON.stringify(value),
+        updated_at: new Date().toISOString()
+      }));
+    const res = await sbFetch('portfolio_data', {
+      method: 'POST',
+      prefer: 'resolution=merge-duplicates',
+      body: JSON.stringify(rows)
+    });
+    return true;
+  } catch(e) { console.error('saveAllToDB error:', e); return false; }
+}
+
+/* ── INIT DATA FROM SUPABASE ── */
+async function loadAllData() {
+  const msg = document.getElementById('loading-msg');
+  if (msg) msg.style.display = 'flex';
+
+  const db = await loadAllFromDB();
+
+  // Proyectos — siempre desde Supabase, defaults solo si no hay nada
+  if (db.projects && db.projects.length > 0) {
+    projects = db.projects;
+  } else {
+    projects = JSON.parse(JSON.stringify(DEFAULT_PROJECTS));
+  }
+
+  // About image
+  if (db.about_img) {
+    aboutImg = db.about_img;
+    const el = document.getElementById('about-img');
+    if (el) el.src = aboutImg;
+  }
+
+  // About texts
+  if (db.about_data) applyAboutData(db.about_data);
+
+  // Services
+  if (db.services) {
+    services = db.services;
+  } else {
+    services = JSON.parse(JSON.stringify(DEFAULT_SERVICES));
+  }
+
+  // Networks
+  if (db.networks) applyNetworks(db.networks);
+
+  // Studio name
+  if (db.studio_name) applyStudioName(db.studio_name);
+
+  // Fonts
+  if (db.fonts) applyFonts(db.fonts);
+
+  // Font sizes
+  if (db.font_sizes) applyFontSizes(db.font_sizes);
+
+  // Colors
+  if (db.colors) { applyColors(db.colors); try { localStorage.setItem('sa_colors', JSON.stringify(db.colors)); } catch(e) {} }
+
+  // Advanced styles
+  if (db.styles) { try { localStorage.setItem('sa_styles', JSON.stringify(db.styles)); } catch(e) {} applyAdvancedStyles(); }
+
+  // Favicon
+  if (db.favicon) setFavicon(db.favicon);
+
+  // Contact info
+  if (db.contact_info) {
+    const d = db.contact_info;
+    contactRows = d.rows || contactRows;
+    contactLabel = d.label || contactLabel;
+    contactTitle = d.title || contactTitle;
+    applyContactInfo();
+  }
+
+  // Hero
+  if (db.hero) applyHeroData(db.hero);
+
+  if (msg) msg.style.display = 'none';
+
+  renderGrid();
+  renderServicesGrid();
+  initHero();
+}
+
+function applyAboutData(d) {
+  if (!d) return;
+  if (d.eyebrow !== undefined) { const el=document.getElementById('about-eyebrow'); if(el) el.textContent=d.eyebrow; }
+  if (d.title   !== undefined) { const el=document.getElementById('about-title');   if(el) el.innerHTML=d.title; }
+  if (d.bio1    !== undefined) { const el=document.getElementById('about-bio1');    if(el) el.textContent=d.bio1; }
+  if (d.bio2    !== undefined) { const el=document.getElementById('about-bio2');    if(el) el.textContent=d.bio2; }
+
+  // Stats — si todos están vacíos, ocultar el bloque entero
+  const sn1 = d.sn1 || ''; const sl1 = d.sl1 || '';
+  const sn2 = d.sn2 || ''; const sl2 = d.sl2 || '';
+  const sn3 = d.sn3 || ''; const sl3 = d.sl3 || '';
+
+  const statsWrap = document.getElementById('about-stats-wrap');
+  const allEmpty = !sn1 && !sn2 && !sn3;
+  if (statsWrap) statsWrap.style.display = allEmpty ? 'none' : '';
+
+  const el1 = document.getElementById('stat-num1'); if(el1) el1.textContent = sn1;
+  const el2 = document.getElementById('stat-lbl1'); if(el2) el2.textContent = sl1;
+  const el3 = document.getElementById('stat-num2'); if(el3) el3.textContent = sn2;
+  const el4 = document.getElementById('stat-lbl2'); if(el4) el4.textContent = sl2;
+  const el5 = document.getElementById('stat-num3'); if(el5) el5.textContent = sn3;
+  const el6 = document.getElementById('stat-lbl3'); if(el6) el6.textContent = sl3;
+}
+
+function applyHeroData(d) {
+  if (!d) return;
+  if (d.videoUrl) {
+    const vid = document.getElementById('hero-video');
+    if (vid) { vid.style.display='block'; vid.src=d.videoUrl; vid.addEventListener('canplay',()=>vid.classList.add('loaded'),{once:true}); }
+  }
+  if (d.label) { const el=document.getElementById('hero-label-text'); if(el) el.textContent=d.label; }
+  if (d.title) { const el=document.getElementById('hero-title-text'); if(el) el.innerHTML=d.title; }
+}
+
+/* ── SAVE ALL ── */
+async function saveAll() {
+  const msg = document.getElementById('admin-msg');
+  msg.textContent = 'Guardando…';
+
+  // Collect all data
+  saveFonts();
+  saveFontSizes();
+  saveColors();
+  saveAdvancedStyles();
+  saveContactInfo();
+  saveHeroTextsToObj();
+  saveNetworksToObj();
+  saveAboutDataToObj();
+
+  const allData = {
+    projects,
+    services,
+    about_img: aboutImg,
+    about_data: currentAboutData,
+    networks:   currentNetworks,
+    studio_name: localStorage.getItem('sa_studio_name') || '',
+    favicon:    localStorage.getItem('sa_favicon') || '',
+    hero:       currentHeroData,
+    fonts: JSON.parse(localStorage.getItem('sa_fonts') || '{}'),
+    font_sizes: JSON.parse(localStorage.getItem('sa_font_sizes') || '{}'),
+    colors: JSON.parse(localStorage.getItem('sa_colors') || '{}'),
+    styles: JSON.parse(localStorage.getItem('sa_styles') || '{}'),
+    contact_info: JSON.parse(localStorage.getItem('sa_contact_info') || 'null') || { rows: contactRows, label: contactLabel, title: contactTitle },
+  };
+
+  const ok = await saveAllToDB(allData);
+
+  // Also keep localStorage as backup
+  try { localStorage.setItem('sa_projects', JSON.stringify(projects)); } catch(e) {}
+
+  renderGrid();
+  renderServicesGrid();
+
+  msg.textContent = ok
+    ? '✓ Guardado en la nube. Se ve igual en todos los dispositivos.'
+    : '⚠ Error al guardar. Abrí la consola del navegador (F12) para ver el error.';
+  setTimeout(() => msg.textContent = '', 4000);
+}
+
+// Helper objects to collect data before saving
+let currentAboutData = {};
+let currentNetworks  = {};
+let currentHeroData  = {};
+
+function saveHeroTextsToObj() {
+  const d = loadHeroData();
+  const lbl = document.getElementById('input-hero-label');
+  const ttl = document.getElementById('input-hero-title');
+  if (lbl) d.label = lbl.value.trim();
+  if (ttl) d.title = ttl.value.trim();
+  currentHeroData = d;
+  saveHeroData(d); // keep local copy too
+}
+
+function saveNetworksToObj() {
+  const nets = {
+    instagram: document.getElementById('input-instagram')?.value.trim() || '',
+    behance:   document.getElementById('input-behance')?.value.trim()   || '',
+    vimeo:     document.getElementById('input-vimeo')?.value.trim()     || '',
+    whatsapp:  document.getElementById('input-whatsapp')?.value.trim()  || '',
+  };
+  currentNetworks = nets;
+  applyNetworks(nets);
+  try { localStorage.setItem('sa_networks', JSON.stringify(nets)); } catch(e) {}
+}
+
+function saveAboutDataToObj() {
+  const g = id => { const el = document.getElementById(id); return el ? el.value.trim() : null; };
+  const newData = {
+    eyebrow: g('input-about-eyebrow'),
+    title:   g('input-about-title'),
+    bio1:    g('input-about-bio1'),
+    bio2:    g('input-about-bio2'),
+    sn1: g('input-stat-num1'), sl1: g('input-stat-lbl1'),
+    sn2: g('input-stat-num2'), sl2: g('input-stat-lbl2'),
+    sn3: g('input-stat-num3'), sl3: g('input-stat-lbl3'),
+  };
+  // Solo sobreescribir campos que NO están vacíos
+  // Preservar el contenido existente si el campo está vacío
+  for (const key of Object.keys(newData)) {
+    if (newData[key] !== null && newData[key] !== '') {
+      currentAboutData[key] = newData[key];
+    }
+  }
+  applyAboutData(currentAboutData);
+}
+
+
+/* ════════════════════════════════════════════════════════
+   TIPOGRAFÍA
+════════════════════════════════════════════════════════ */
+const SECTIONS_FONT = ['global','hero','proyectos','nosotros','servicios','contacto'];
+const SECTION_SELECTORS = {
+  hero:      '#inicio',
+  proyectos: '#proyectos',
+  nosotros:  '#nosotros',
+  servicios: '#servicios',
+  contacto:  '#contacto',
+};
+
+function applyFonts(fontsObj) {
+  // Apply global first
+  const gd = fontsObj['global']?.display || 'Cormorant Garamond';
+  const gb = fontsObj['global']?.body    || 'Inter';
+  document.documentElement.style.setProperty('--font-display', `'${gd}', Georgia, serif`);
+  document.documentElement.style.setProperty('--font-body',    `'${gb}', system-ui, sans-serif`);
+
+  // Apply per-section overrides
+  for (const [sec, selector] of Object.entries(SECTION_SELECTORS)) {
+    const el = document.querySelector(selector);
+    if (!el) continue;
+    const d = fontsObj[sec]?.display;
+    const b = fontsObj[sec]?.body;
+    if (d) el.style.setProperty('--font-display', `'${d}', Georgia, serif`);
+    else   el.style.removeProperty('--font-display');
+    if (b) el.style.setProperty('--font-body', `'${b}', system-ui, sans-serif`);
+    else   el.style.removeProperty('--font-body');
+  }
+}
+
+function previewFonts() {
+  const display = document.getElementById('font-global-display')?.value || 'Cormorant Garamond';
+  const body    = document.getElementById('font-global-body')?.value    || 'Inter';
+  const previewDisplay = document.getElementById('font-preview-display');
+  const previewBody    = document.getElementById('font-preview-body');
+  if (previewDisplay) previewDisplay.style.fontFamily = `'${display}', Georgia, serif`;
+  if (previewBody)    previewBody.style.fontFamily    = `'${body}', system-ui, sans-serif`;
+}
+
+function saveFonts() {
+  const fontsObj = {};
+  for (const sec of SECTIONS_FONT) {
+    const d = document.getElementById(`font-${sec}-display`)?.value;
+    const b = document.getElementById(`font-${sec}-body`)?.value;
+    if (d || b) fontsObj[sec] = { display: d || '', body: b || '' };
+  }
+  try { localStorage.setItem('sa_fonts', JSON.stringify(fontsObj)); } catch(e) {}
+  applyFonts(fontsObj);
+}
+
+function loadFonts() {
+  try {
+    const raw = localStorage.getItem('sa_fonts');
+    if (raw) applyFonts(JSON.parse(raw));
+  } catch(e) {}
+}
+
+function populateFontInputs() {
+  try {
+    const raw = localStorage.getItem('sa_fonts');
+    if (!raw) return;
+    const f = JSON.parse(raw);
+    for (const sec of SECTIONS_FONT) {
+      const selD = document.getElementById(`font-${sec}-display`);
+      const selB = document.getElementById(`font-${sec}-body`);
+      if (selD && f[sec]?.display) selD.value = f[sec].display;
+      if (selB && f[sec]?.body)    selB.value = f[sec].body;
+    }
+    previewFonts();
+  } catch(e) {}
+}
+
+
+/* ════════════════════════════════════════════════════════
+   CONTACTO — info editable
+════════════════════════════════════════════════════════ */
+const DEFAULT_CONTACT_ROWS = [
+  { label: 'Email',   value: 'hola@studioarch.com.ar' },
+  { label: 'Teléfono', value: '+54 11 4XXX-XXXX' },
+  { label: 'Estudio', value: 'Buenos Aires, Argentina' },
+  { label: 'Horario', value: 'Lun – Vie, 9:00 – 18:00' },
+];
+
+let contactRows = [];
+let contactLabel = 'Hablemos';
+let contactTitle = '¿Tenés un<br>proyecto en<br><em>mente?</em>';
+
+function loadContactInfo() {
+  try {
+    const raw = localStorage.getItem('sa_contact_info');
+    if (raw) {
+      const d = JSON.parse(raw);
+      contactRows = d.rows || JSON.parse(JSON.stringify(DEFAULT_CONTACT_ROWS));
+      contactLabel = d.label || 'Hablemos';
+      contactTitle = d.title || '¿Tenés un<br>proyecto en<br><em>mente?</em>';
+    } else {
+      contactRows = JSON.parse(JSON.stringify(DEFAULT_CONTACT_ROWS));
+    }
+  } catch(e) {
+    contactRows = JSON.parse(JSON.stringify(DEFAULT_CONTACT_ROWS));
+  }
+  applyContactInfo();
+}
+
+function applyContactInfo() {
+  const labelEl = document.getElementById('contact-label-el');
+  const titleEl = document.getElementById('contact-title-el');
+  const detailsEl = document.getElementById('contact-details-el');
+
+  if (labelEl) labelEl.textContent = contactLabel;
+  if (titleEl) titleEl.innerHTML = contactTitle;
+
+  if (detailsEl && contactRows.length > 0) {
+    // Save social row before clearing
+    const socialRow = document.getElementById('contact-social-row');
+    
+    // Build rows HTML
+    const rowsHTML = contactRows.map(r => `
+      <div class="contact-row">
+        <span class="contact-row-label">${esc(r.label)}</span>
+        <span class="contact-row-value">${esc(r.value)}</span>
+      </div>`).join('');
+
+    // Set content preserving social row
+    detailsEl.innerHTML = rowsHTML;
+    
+    // Re-append social row if it exists
+    if (socialRow) {
+      detailsEl.appendChild(socialRow);
+    }
+  }
+}
+
+function saveContactInfo() {
+  const newLabel = document.getElementById('input-contact-label')?.value.trim();
+  const newTitle = document.getElementById('input-contact-title')?.value.trim();
+  // Solo actualizar si no están vacíos
+  if (newLabel) contactLabel = newLabel;
+  if (newTitle) contactTitle = newTitle;
+  const d = { rows: contactRows, label: contactLabel, title: contactTitle };
+  try { localStorage.setItem('sa_contact_info', JSON.stringify(d)); } catch(e) {}
+  applyContactInfo();
+}
+
+function renderContactInfoAdmin() {
+  const list = document.getElementById('contact-info-list');
+  if (!list) return;
+  list.innerHTML = contactRows.map((r, i) => `
+    <div class="admin-proj-card" style="display:grid;grid-template-columns:1fr 2fr auto;gap:1rem;align-items:center;margin-bottom:.75rem">
+      <div class="admin-field-group">
+        <span class="admin-field-label">Label</span>
+        <input class="admin-field" value="${esc(r.label)}" placeholder="Email"
+          onchange="contactRows[${i}].label=this.value"/>
+      </div>
+      <div class="admin-field-group">
+        <span class="admin-field-label">Valor</span>
+        <input class="admin-field" value="${esc(r.value)}" placeholder="hola@ejemplo.com"
+          onchange="contactRows[${i}].value=this.value"/>
+      </div>
+      <button class="del-proj-btn" onclick="deleteContactRow(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function addContactRow() {
+  contactRows.push({ label: 'Nuevo campo', value: '' });
+  renderContactInfoAdmin();
+}
+
+function deleteContactRow(i) {
+  contactRows.splice(i, 1);
+  renderContactInfoAdmin();
+}
+
+function populateContactInputs() {
+  const lbl = document.getElementById('input-contact-label');
+  const ttl = document.getElementById('input-contact-title');
+  if (lbl) lbl.value = contactLabel;
+  if (ttl) ttl.value = contactTitle;
+  renderContactInfoAdmin();
+}
+
+/* ════════════════════════════════════════════════════════
+   TAMAÑOS DE TEXTO
+════════════════════════════════════════════════════════ */
+function updateSizePreview(elId, val) {
+  const el = document.getElementById(elId);
+  if (el) el.textContent = val;
+}
+
+function applyAboutSizes() {
+  const titleSize = document.getElementById('input-about-title-size')?.value;
+  const bodySize  = document.getElementById('input-about-body-size')?.value;
+
+  const titleEl = document.getElementById('about-title');
+  const bio1El  = document.getElementById('about-bio1');
+  const bio2El  = document.getElementById('about-bio2');
+
+  if (titleEl && titleSize) titleEl.style.fontSize = titleSize + 'rem';
+  if (bio1El  && bodySize)  bio1El.style.fontSize  = bodySize  + 'rem';
+  if (bio2El  && bodySize)  bio2El.style.fontSize  = bodySize  + 'rem';
+}
+
+function saveFontSizes() {
+  const sizes = {
+    aboutTitle: document.getElementById('input-about-title-size')?.value || '4',
+    aboutBody:  document.getElementById('input-about-body-size')?.value  || '0.9',
+  };
+  try { localStorage.setItem('sa_font_sizes', JSON.stringify(sizes)); } catch(e) {}
+  applyFontSizes(sizes);
+}
+
+function applyFontSizes(sizes) {
+  if (!sizes) return;
+  const titleEl = document.getElementById('about-title');
+  const bio1El  = document.getElementById('about-bio1');
+  const bio2El  = document.getElementById('about-bio2');
+  if (titleEl && sizes.aboutTitle) {
+    titleEl.style.fontSize = sizes.aboutTitle + 'rem';
+    titleEl.style.lineHeight = '1.1';
+  }
+  if (bio1El  && sizes.aboutBody)  bio1El.style.fontSize  = sizes.aboutBody  + 'rem';
+  if (bio2El  && sizes.aboutBody)  bio2El.style.fontSize  = sizes.aboutBody  + 'rem';
+}
+
+function loadFontSizes() {
+  try {
+    const raw = localStorage.getItem('sa_font_sizes');
+    if (raw) applyFontSizes(JSON.parse(raw));
+  } catch(e) {}
+}
+
+function populateFontSizeInputs() {
+  try {
+    const raw = localStorage.getItem('sa_font_sizes');
+    if (!raw) return;
+    const sizes = JSON.parse(raw);
+    const t = document.getElementById('input-about-title-size');
+    const b = document.getElementById('input-about-body-size');
+    if (t && sizes.aboutTitle) { t.value = sizes.aboutTitle; updateSizePreview('about-title-size-val', sizes.aboutTitle + 'rem'); }
+    if (b && sizes.aboutBody)  { b.value = sizes.aboutBody;  updateSizePreview('about-body-size-val',  sizes.aboutBody  + 'rem'); }
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════════════════════
+   COLORES
+════════════════════════════════════════════════════════ */
+function applyColors(c) {
+  if (!c) return;
+  const root = document.documentElement;
+  if (c.bone)          root.style.setProperty('--bone', c.bone);
+  if (c.gold)          root.style.setProperty('--gold', c.gold);
+  if (c.ink)           root.style.setProperty('--ink',  c.ink);
+  if (c.olive)         root.style.setProperty('--olive', c.olive);
+  if (c.nosotrosBg)    { const el = document.getElementById('nosotros'); if(el) el.style.background = c.nosotrosBg; }
+  if (c.nosotrosText)  { const el = document.getElementById('nosotros'); if(el) el.style.color = c.nosotrosText; }
+  if (c.serviciosBg)   { const el = document.getElementById('servicios'); if(el) el.style.background = c.serviciosBg; }
+  if (c.contactoLeft)  { const el = document.querySelector('.contact-left'); if(el) el.style.background = c.contactoLeft; }
+  if (c.contactoRight) { const el = document.querySelector('.contact-right'); if(el) el.style.background = c.contactoRight; }
+  if (c.proyectosBg)   { const el = document.getElementById('proyectos'); if(el) el.style.background = c.proyectosBg; }
+}
+
+function saveColors() {
+  const g = id => document.getElementById(id)?.value || null;
+  const c = {
+    bone:          g('color-bone'),
+    gold:          g('color-gold'),
+    ink:           g('color-ink'),
+    olive:         g('color-olive'),
+    nosotrosBg:    g('color-nosotros-bg'),
+    nosotrosText:  g('color-nosotros-text'),
+    serviciosBg:   g('color-servicios-bg'),
+    contactoLeft:  g('color-contacto-left'),
+    contactoRight: g('color-contacto-right'),
+    proyectosBg:   g('color-proyectos-bg'),
+  };
+  try { localStorage.setItem('sa_colors', JSON.stringify(c)); } catch(e) {}
+  applyColors(c);
+}
+
+function loadColors() {
+  try {
+    const raw = localStorage.getItem('sa_colors');
+    if (raw) applyColors(JSON.parse(raw));
+  } catch(e) {}
+}
+
+function populateColorInputs() {
+  try {
+    const raw = localStorage.getItem('sa_colors');
+    if (!raw) return;
+    const c = JSON.parse(raw);
+    const map = {
+      'color-bone': c.bone, 'color-gold': c.gold, 'color-ink': c.ink,
+      'color-olive': c.olive, 'color-nosotros-bg': c.nosotrosBg,
+      'color-nosotros-text': c.nosotrosText, 'color-servicios-bg': c.serviciosBg,
+      'color-contacto-left': c.contactoLeft, 'color-contacto-right': c.contactoRight,
+      'color-proyectos-bg': c.proyectosBg,
+    };
+    for (const [id, val] of Object.entries(map)) {
+      const el = document.getElementById(id);
+      if (el && val) el.value = val;
+    }
+  } catch(e) {}
+}
+
+/* ════════════════════════════════════════════════════════
+   ESTILOS AVANZADOS
+════════════════════════════════════════════════════════ */
+function updateStylePreview(elId, val) {
+  const el = document.getElementById(elId);
+  if (el) el.textContent = val;
+}
+
+function applyAdvancedStyles() {
+  const s = loadAdvancedStyles();
+
+  // Hero title
+  if (s.heroTitle) {
+    document.querySelectorAll('.hero-title').forEach(el => el.style.fontSize = s.heroTitle + 'rem');
+  }
+  // Proj title section
+  if (s.projTitle) {
+    document.querySelectorAll('#proyectos .section-title').forEach(el => el.style.fontSize = s.projTitle + 'rem');
+  }
+  // Proj name overlay
+  if (s.projName) {
+    document.querySelectorAll('.proj-desc-name').forEach(el => el.style.fontSize = s.projName + 'rem');
+  }
+  // Proj desc text
+  if (s.projDesc) {
+    document.querySelectorAll('.proj-desc-text').forEach(el => el.style.fontSize = s.projDesc + 'rem');
+  }
+  // Service title
+  if (s.servTitle) {
+    document.querySelectorAll('.service-title').forEach(el => el.style.fontSize = s.servTitle + 'rem');
+  }
+  // Service desc
+  if (s.servDesc) {
+    document.querySelectorAll('.service-desc').forEach(el => el.style.fontSize = s.servDesc + 'rem');
+  }
+  // Contact title
+  if (s.contactTitle) {
+    document.querySelectorAll('.contact-title').forEach(el => el.style.fontSize = s.contactTitle + 'rem');
+  }
+  // Contact value
+  if (s.contactValue) {
+    document.querySelectorAll('.contact-row-value').forEach(el => el.style.fontSize = s.contactValue + 'rem');
+  }
+  // Button style
+  if (s.btnType || s.btnColor || s.btnText) {
+    document.querySelectorAll('.btn-submit').forEach(el => {
+      if (s.btnColor) el.style.background = s.btnType === 'outline' ? 'transparent' : s.btnColor;
+      if (s.btnText)  el.style.color = s.btnText;
+      if (s.btnColor && s.btnType === 'outline') el.style.border = '2px solid ' + s.btnColor;
+      const radius = s.btnType === 'rounded' ? '8px' : s.btnType === 'pill' ? '999px' : '0px';
+      el.style.borderRadius = radius;
+    });
+  }
+  // Footer
+  if (s.footerBg) {
+    document.querySelectorAll('.footer').forEach(el => el.style.background = s.footerBg);
+  }
+  if (s.footerCopy) {
+    document.querySelectorAll('.footer-copy, .studio-name-copy').forEach(el => el.textContent = s.footerCopy);
+  }
+}
+
+function saveAdvancedStyles() {
+  const g = id => document.getElementById(id)?.value || null;
+  const s = {
+    heroTitle:    g('style-hero-title'),
+    projTitle:    g('style-proj-title'),
+    projName:     g('style-proj-name'),
+    projDesc:     g('style-proj-desc'),
+    servTitle:    g('style-serv-title'),
+    servDesc:     g('style-serv-desc'),
+    contactTitle: g('style-contact-title'),
+    contactValue: g('style-contact-value'),
+    btnType:      g('style-btn-type'),
+    btnColor:     g('style-btn-color'),
+    btnText:      g('style-btn-text'),
+    footerBg:     g('style-footer-bg'),
+    footerCopy:   g('style-footer-copy'),
+  };
+  try { localStorage.setItem('sa_styles', JSON.stringify(s)); } catch(e) {}
+  applyAdvancedStyles();
+  return s;
+}
+
+function loadAdvancedStyles() {
+  try {
+    const raw = localStorage.getItem('sa_styles');
+    return raw ? JSON.parse(raw) : {};
+  } catch(e) { return {}; }
+}
+
+function populateStyleInputs() {
+  const s = loadAdvancedStyles();
+  const map = {
+    'style-hero-title':    s.heroTitle,
+    'style-proj-title':    s.projTitle,
+    'style-proj-name':     s.projName,
+    'style-proj-desc':     s.projDesc,
+    'style-serv-title':    s.servTitle,
+    'style-serv-desc':     s.servDesc,
+    'style-contact-title': s.contactTitle,
+    'style-contact-value': s.contactValue,
+    'style-btn-type':      s.btnType,
+    'style-btn-color':     s.btnColor,
+    'style-btn-text':      s.btnText,
+    'style-footer-bg':     s.footerBg,
+    'style-footer-copy':   s.footerCopy,
+  };
+  for (const [id, val] of Object.entries(map)) {
+    const el = document.getElementById(id);
+    if (el && val) {
+      el.value = val;
+      // Update preview labels for sliders
+      const label = document.getElementById(id + '-val');
+      if (label) label.textContent = val + (id.includes('title') || id.includes('name') || id.includes('desc') || id.includes('value') ? 'rem' : '');
+    }
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   MOBILE PREVIEW
+════════════════════════════════════════════════════════ */
+let mobilePreviewOpen = false;
+
+function toggleMobilePreview() {
+  const panel = document.getElementById('mobile-preview-panel');
+  const btn   = document.getElementById('mobile-preview-btn');
+  const inner = document.getElementById('admin-overlay');
+
+  mobilePreviewOpen = !mobilePreviewOpen;
+
+  if (mobilePreviewOpen) {
+    panel.style.display = 'flex';
+    btn.style.borderColor = 'var(--gold)';
+    btn.style.color = 'var(--gold)';
+    refreshMobilePreview();
+  } else {
+    panel.style.display = 'none';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+  }
+}
+
+function refreshMobilePreview() {
+  const frame = document.getElementById('mobile-preview-frame');
+  if (frame) {
+    frame.src = window.location.href.split('#')[0];
+  }
+}
+
+function initCursor() {
+  const cursor=document.getElementById('cursor');
+  if(!cursor||window.matchMedia('(pointer:coarse)').matches) return;
+  document.addEventListener('mousemove',e=>{ cursor.style.left=e.clientX+'px'; cursor.style.top=e.clientY+'px'; });
+  document.querySelectorAll('a,button,.proj-card').forEach(el=>{
+    el.addEventListener('mouseenter',()=>cursor.classList.add('expanded'));
+    el.addEventListener('mouseleave',()=>cursor.classList.remove('expanded'));
+  });
+  document.querySelectorAll('#nosotros,.menu-overlay,.lightbox,.admin-overlay,.login-overlay').forEach(el=>{
+    el.addEventListener('mouseenter',()=>cursor.classList.add('light'));
+    el.addEventListener('mouseleave',()=>cursor.classList.remove('light'));
+  });
+}
+
+function initNav() {
+  const hamburger=document.getElementById('hamburger');
+  const menuOverlay=document.getElementById('menu-overlay');
+  hamburger.addEventListener('click',()=>{
+    const isOpen=menuOverlay.classList.toggle('open');
+    hamburger.classList.toggle('open',isOpen);
+    document.body.style.overflow=isOpen?'hidden':'';
+  });
+  document.querySelectorAll('.menu-link').forEach(link=>{
+    link.addEventListener('click',()=>{
+      menuOverlay.classList.remove('open');
+      hamburger.classList.remove('open');
+      document.body.style.overflow='';
+    });
+  });
+}
+
+function initScrollSpy() {
+  const obs=new IntersectionObserver(entries=>{
+    entries.forEach(en=>{
+      if(en.isIntersecting) document.querySelectorAll('.menu-link[data-section]')
+        .forEach(l=>l.classList.toggle('active',l.dataset.section===en.target.id));
+    });
+  },{threshold:.35});
+  document.querySelectorAll('section[id]').forEach(s=>obs.observe(s));
+}
+
+const revealObserver=new IntersectionObserver(entries=>{
+  entries.forEach((en,i)=>{
+    if(en.isIntersecting){ setTimeout(()=>en.target.classList.add('visible'),i*80); revealObserver.unobserve(en.target); }
+  });
+},{threshold:.1});
+
+function initReveal() {
+  document.querySelectorAll('.reveal').forEach(el=>revealObserver.observe(el));
+}
+
+function initLightboxKeys() {
+  document.addEventListener('keydown',e=>{
+    const lb=document.getElementById('lightbox');
+    if(lb.classList.contains('open')){
+      if(e.key==='ArrowLeft') lbNav(-1);
+      if(e.key==='ArrowRight') lbNav(1);
+      if(e.key==='Escape') closeLightbox();
+      return;
+    }
+    if(e.key==='Escape'){
+      closeAdmin(); closeLogin();
+      const menu=document.getElementById('menu-overlay');
+      if(menu.classList.contains('open')){ menu.classList.remove('open'); document.getElementById('hamburger').classList.remove('open'); document.body.style.overflow=''; }
+    }
+  });
+  document.getElementById('lightbox').addEventListener('click',e=>{
+    if(e.target===document.getElementById('lightbox')||e.target===document.getElementById('lb-stage')) closeLightbox();
+  });
+}
+
+function initForm() {
+  document.getElementById('contact-form')?.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const nombre  = document.getElementById('f-nombre').value.trim();
+    const email   = document.getElementById('f-email').value.trim();
+    const tipo    = document.getElementById('f-tipo').value;
+    const mensaje = document.getElementById('f-mensaje').value.trim();
+
+    // Armar mensaje para WhatsApp
+    const texto = `Hola! Te escribo desde tu portfolio.
+
+*Nombre:* ${nombre}
+*Email:* ${email}
+*Tipo de proyecto:* ${tipo || 'No especificado'}
+*Mensaje:* ${mensaje}`;
+
+    // Obtener número de WhatsApp guardado
+    let waNumber = '';
+    try {
+      const nets = JSON.parse(localStorage.getItem('sa_networks') || '{}');
+      waNumber = (nets.whatsapp || '').replace(/\D/g, '');
+    } catch(err) {}
+
+    if (!waNumber) {
+      // Si no hay número configurado, mostrar mensaje igual
+      document.getElementById('form-success').style.display = 'block';
+      e.target.querySelectorAll('input,textarea,select,button').forEach(el => el.disabled = true);
+      return;
+    }
+
+    const url = `https://wa.me/${waNumber}?text=${encodeURIComponent(texto)}`;
+    window.open(url, '_blank');
+
+    document.getElementById('form-success').style.display = 'block';
+    e.target.querySelectorAll('input,textarea,select,button').forEach(el => el.disabled = true);
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded', async () => {
+  // Init UI first (nav, cursor, etc)
+  loadFonts();
+  loadFontSizes();
+  loadColors();
+  applyAdvancedStyles();
+  loadContactInfo();
+  initCursor();
+  initNav();
+  initScrollSpy();
+  initReveal();
+  initLightboxKeys();
+  initForm();
+
+  // Triple click en el logo = abre admin
+  let _cc = 0, _ct = null;
+  const _logo = document.querySelector('.nav-logo');
+  if (_logo) {
+    _logo.addEventListener('click', e => {
+      e.preventDefault();
+      _cc++;
+      if (_ct) clearTimeout(_ct);
+      _ct = setTimeout(() => { _cc = 0; }, 600);
+      if (_cc >= 3) { _cc = 0; openLoginPrompt(); }
+    });
+  }
+
+  // Load all data from Supabase (single source of truth)
+  await loadAllData();
+});
+</script>
+</body>
+</html>
