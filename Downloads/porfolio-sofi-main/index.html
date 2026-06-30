@@ -493,6 +493,13 @@ section { position:relative; }
   .projects-grid { grid-template-columns:1fr; gap:.75rem; }
   .proj-wrap:nth-child(n) { grid-column:span 1; }
   .proj-wrap:nth-child(n) .proj-card { height:260px !important; min-height:260px !important; }
+  .proj-slide img { object-position: var(--img-pos-x, center) var(--img-pos-y, center); }
+  .proj-slider { overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; transform:none !important; }
+  .proj-slider .proj-slide { scroll-snap-align:start; scroll-snap-stop:always; width:100%; min-width:100%; max-width:100%; flex:0 0 100%; }
+  .proj-arrow { opacity:1 !important; }
+  .proj-dots { opacity:1 !important; bottom:.75rem; }
+  .proj-ver-mas { opacity:1 !important; transform:none !important; }
+  .lb-nav { color:#888 !important; }
 
   #nosotros { grid-template-columns:1fr; }
   .about-image-side { min-height:280px; }
@@ -587,6 +594,7 @@ section { position:relative; }
           style="background:none;border:1px solid #DDDBD6;color:var(--gray);padding:.5rem 1rem;font-size:9px;letter-spacing:.15em;text-transform:uppercase;font-family:var(--font-body);white-space:nowrap;cursor:pointer">
           ✕ Cerrar
         </button>
+        <span class="admin-msg" id="admin-msg-top" style="margin:0"></span>
       </div>
     </div>
 
@@ -830,6 +838,87 @@ section { position:relative; }
 
     </div>
 
+
+    <hr class="admin-sep"/>
+
+    <!-- Estilos Mobile -->
+    <span class="admin-section-label">Estilos mobile — Tamaños en pantalla chica (solo mobile)</span>
+    <p style="font-size:11px;color:var(--gray);margin-bottom:1.5rem">Estos valores solo aplican en celulares (menos de 768px). Son independientes de los de escritorio.</p>
+    <div style="display:flex;flex-direction:column;gap:1rem;max-width:680px;margin-bottom:2rem">
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem;color:var(--gold)">Portada</span>
+        <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+          <div><span class="admin-field-label">Tamaño título hero</span>
+          <input type="range" id="mob-hero-title" min="1.5" max="5" step="0.1" value="2.5" style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('mob-hero-title-val',this.value+'rem');applyMobileStyles()"/></div>
+          <span id="mob-hero-title-val" style="font-size:11px;color:var(--gray);white-space:nowrap">2.5rem</span>
+        </div>
+      </div>
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Proyectos</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño título sección</span>
+            <input type="range" id="mob-proj-title" min="1.2" max="4" step="0.1" value="2" style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('mob-proj-title-val',this.value+'rem');applyMobileStyles()"/></div>
+            <span id="mob-proj-title-val" style="font-size:11px;color:var(--gray);white-space:nowrap">2rem</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño nombre proyecto</span>
+            <input type="range" id="mob-proj-name" min="0.7" max="2" step="0.05" value="1.1" style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('mob-proj-name-val',this.value+'rem');applyMobileStyles()"/></div>
+            <span id="mob-proj-name-val" style="font-size:11px;color:var(--gray);white-space:nowrap">1.1rem</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño descripción proyecto</span>
+            <input type="range" id="mob-proj-desc" min="0.6" max="1.1" step="0.05" value="0.78" style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('mob-proj-desc-val',this.value+'rem');applyMobileStyles()"/></div>
+            <span id="mob-proj-desc-val" style="font-size:11px;color:var(--gray);white-space:nowrap">0.78rem</span>
+          </div>
+        </div>
+      </div>
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Nosotros</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño título</span>
+            <input type="range" id="mob-about-title" min="1.2" max="3.5" step="0.1" value="2" style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('mob-about-title-val',this.value+'rem');applyMobileStyles()"/></div>
+            <span id="mob-about-title-val" style="font-size:11px;color:var(--gray);white-space:nowrap">2rem</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño párrafos</span>
+            <input type="range" id="mob-about-body" min="0.6" max="1.2" step="0.05" value="0.82" style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('mob-about-body-val',this.value+'rem');applyMobileStyles()"/></div>
+            <span id="mob-about-body-val" style="font-size:11px;color:var(--gray);white-space:nowrap">0.82rem</span>
+          </div>
+        </div>
+      </div>
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Servicios</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño título servicio</span>
+            <input type="range" id="mob-serv-title" min="0.8" max="2.5" step="0.05" value="1.2" style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('mob-serv-title-val',this.value+'rem');applyMobileStyles()"/></div>
+            <span id="mob-serv-title-val" style="font-size:11px;color:var(--gray);white-space:nowrap">1.2rem</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño descripción servicio</span>
+            <input type="range" id="mob-serv-desc" min="0.6" max="1.1" step="0.05" value="0.78" style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('mob-serv-desc-val',this.value+'rem');applyMobileStyles()"/></div>
+            <span id="mob-serv-desc-val" style="font-size:11px;color:var(--gray);white-space:nowrap">0.78rem</span>
+          </div>
+        </div>
+      </div>
+      <div class="admin-proj-card" style="padding:1.25rem 1.5rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:1rem">Contacto</span>
+        <div style="display:flex;flex-direction:column;gap:.75rem">
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño título contacto</span>
+            <input type="range" id="mob-contact-title" min="1.2" max="4" step="0.1" value="1.9" style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('mob-contact-title-val',this.value+'rem');applyMobileStyles()"/></div>
+            <span id="mob-contact-title-val" style="font-size:11px;color:var(--gray);white-space:nowrap">1.9rem</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr auto;align-items:center;gap:1rem">
+            <div><span class="admin-field-label">Tamaño datos contacto</span>
+            <input type="range" id="mob-contact-value" min="0.6" max="1.2" step="0.05" value="0.82" style="width:100%;accent-color:var(--gold)" oninput="updateStylePreview('mob-contact-value-val',this.value+'rem');applyMobileStyles()"/></div>
+            <span id="mob-contact-value-val" style="font-size:11px;color:var(--gray);white-space:nowrap">0.82rem</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <hr class="admin-sep"/>
 
@@ -1606,7 +1695,7 @@ function renderGrid() {
       <div class="proj-card" id="pc-${i}">
         <div class="proj-slider" id="ps-${i}" style="transform:translateX(-${cur*100}%)">
           ${total>0
-            ? photos.map(src=>`<div class="proj-slide"><img src="${src}" alt="${esc(p.name)}" loading="lazy"/></div>`).join('')
+            ? photos.map(src=>`<div class="proj-slide"><img src="${src}" alt="${esc(p.name)}" loading="lazy" style="object-position:${p.imgPosX||'center'} ${p.imgPosY||'center'}"/></div>`).join('')
             : `<div class="proj-slide"><div class="proj-empty"><p class="proj-empty-lbl">Sin imágenes</p></div></div>`
           }
         </div>
@@ -1654,7 +1743,10 @@ function cardGoTo(e,i,idx) {
 }
 function _updateCard(i,cur,total) {
   const slider = document.getElementById(`ps-${i}`);
-  if (slider) slider.style.transform=`translateX(-${cur*100}%)`;
+  if (slider) {
+    if (window.innerWidth <= 768) { slider.scrollTo({ left: cur * slider.clientWidth, behavior: 'smooth' }); }
+    else { slider.style.transform=`translateX(-${cur*100}%)`; }
+  }
   const card = document.getElementById(`pc-${i}`);
   if (!card) return;
   const badge = card.querySelector('.proj-badge');
@@ -1732,6 +1824,7 @@ function openAdmin() {
   populateFontSizeInputs();
   populateColorInputs();
   populateStyleInputs();
+  populateMobileStyleInputs();
   populateContactInputs();
   renderAdminServices();
   document.getElementById('cloudinary-notice').style.display =
@@ -1780,6 +1873,23 @@ function renderAdminList() {
         <span class="admin-field-label">Descripción</span>
         <textarea class="admin-textarea" placeholder="Describí el proyecto..."
           onchange="projects[${i}].description=this.value">${esc(p.description||'')}</textarea>
+      </div>
+      <div style="margin-bottom:1.25rem">
+        <span class="admin-field-label" style="display:block;margin-bottom:.5rem">Posición de imagen en mobile — solo mobile (horizontal · vertical)</span>
+        <div style="display:flex;gap:1rem;align-items:center">
+          <select class="admin-field" style="max-width:160px" onchange="projects[${i}].imgPosX=this.value">
+            <option value="center" ${(p.imgPosX||'center')==='center'?'selected':''}>Centro</option>
+            <option value="left" ${(p.imgPosX||'center')==='left'?'selected':''}>Izquierda</option>
+            <option value="right" ${(p.imgPosX||'center')==='right'?'selected':''}>Derecha</option>
+          </select>
+          <select class="admin-field" style="max-width:160px" onchange="projects[${i}].imgPosY=this.value">
+            <option value="center" ${(p.imgPosY||'center')==='center'?'selected':''}>Centro</option>
+            <option value="top" ${(p.imgPosY||'center')==='top'?'selected':''}>Arriba</option>
+            <option value="bottom" ${(p.imgPosY||'center')==='bottom'?'selected':''}>Abajo</option>
+            <option value="25%" ${(p.imgPosY||'center')==='25%'?'selected':''}>25% desde arriba</option>
+            <option value="75%" ${(p.imgPosY||'center')==='75%'?'selected':''}>75% desde arriba</option>
+          </select>
+        </div>
       </div>
       <p class="admin-photos-label">
         Fotos (${(p.photos||[]).length}) — primera foto = portada · ★ para cambiar portada
@@ -2437,6 +2547,7 @@ async function loadAllData() {
 
   // Advanced styles
   if (db.styles) { try { localStorage.setItem('sa_styles', JSON.stringify(db.styles)); } catch(e) {} applyAdvancedStyles(); }
+  if (db.mobile_styles) { try { localStorage.setItem('sa_mobile_styles', JSON.stringify(db.mobile_styles)); } catch(e) {} applyMobileStyles(); }
 
   // Favicon
   if (db.favicon) setFavicon(db.favicon);
@@ -2502,13 +2613,16 @@ function applyHeroData(d) {
 /* ── SAVE ALL ── */
 async function saveAll() {
   const msg = document.getElementById('admin-msg');
+  const msgTop = document.getElementById('admin-msg-top');
   msg.textContent = 'Guardando…';
+  if (msgTop) msgTop.textContent = 'Guardando…';
 
   // Collect all data
   saveFonts();
   saveFontSizes();
   saveColors();
   saveAdvancedStyles();
+  saveMobileStyles();
   saveContactInfo();
   saveHeroTextsToObj();
   saveNetworksToObj();
@@ -2527,6 +2641,7 @@ async function saveAll() {
     font_sizes: JSON.parse(localStorage.getItem('sa_font_sizes') || '{}'),
     colors: JSON.parse(localStorage.getItem('sa_colors') || '{}'),
     styles: JSON.parse(localStorage.getItem('sa_styles') || '{}'),
+    mobile_styles: JSON.parse(localStorage.getItem('sa_mobile_styles') || '{}'),
     contact_info: JSON.parse(localStorage.getItem('sa_contact_info') || 'null') || { rows: contactRows, label: contactLabel, title: contactTitle },
     form_options: JSON.parse(localStorage.getItem('sa_form_options') || 'null'),
   };
@@ -2539,10 +2654,12 @@ async function saveAll() {
   renderGrid();
   renderServicesGrid();
 
-  msg.textContent = ok
+  const finalMsg = ok
     ? '✓ Guardado en la nube. Se ve igual en todos los dispositivos.'
     : '⚠ Error al guardar. Abrí la consola del navegador (F12) para ver el error.';
-  setTimeout(() => msg.textContent = '', 4000);
+  msg.textContent = finalMsg;
+  if (msgTop) msgTop.textContent = finalMsg;
+  setTimeout(() => { msg.textContent = ''; if (msgTop) msgTop.textContent = ''; }, 4000);
 }
 
 // Helper objects to collect data before saving
@@ -3053,6 +3170,46 @@ function loadAdvancedStyles() {
   } catch(e) { return {}; }
 }
 
+/* ══ ESTILOS MOBILE ══ */
+let _mobileStyleEl = null;
+function getMobileStyleEl() {
+  if (!_mobileStyleEl) { _mobileStyleEl = document.createElement('style'); _mobileStyleEl.id = 'sa-mobile-styles'; document.head.appendChild(_mobileStyleEl); }
+  return _mobileStyleEl;
+}
+function applyMobileStyles() {
+  const s = loadMobileStyles();
+  const rules = [];
+  if (s.heroTitle)    rules.push('.hero-title { font-size:' + s.heroTitle + 'rem !important; }');
+  if (s.projTitle)    rules.push('#proyectos .section-title { font-size:' + s.projTitle + 'rem !important; }');
+  if (s.projName)     rules.push('.proj-desc-name { font-size:' + s.projName + 'rem !important; }');
+  if (s.projDesc)     rules.push('.proj-desc-text { font-size:' + s.projDesc + 'rem !important; }');
+  if (s.aboutTitle)   rules.push('#about-title { font-size:' + s.aboutTitle + 'rem !important; }');
+  if (s.aboutBody)    rules.push('#about-bio1, #about-bio2 { font-size:' + s.aboutBody + 'rem !important; }');
+  if (s.servTitle)    rules.push('.service-title { font-size:' + s.servTitle + 'rem !important; }');
+  if (s.servDesc)     rules.push('.service-desc { font-size:' + s.servDesc + 'rem !important; }');
+  if (s.contactTitle) rules.push('.contact-title { font-size:' + s.contactTitle + 'rem !important; }');
+  if (s.contactValue) rules.push('.contact-row-value { font-size:' + s.contactValue + 'rem !important; }');
+  getMobileStyleEl().textContent = rules.length ? '@media (max-width:768px) { ' + rules.join(' ') + ' }' : '';
+}
+function saveMobileStyles() {
+  const g = id => document.getElementById(id)?.value || null;
+  const s = { heroTitle:g('mob-hero-title'), projTitle:g('mob-proj-title'), projName:g('mob-proj-name'), projDesc:g('mob-proj-desc'), aboutTitle:g('mob-about-title'), aboutBody:g('mob-about-body'), servTitle:g('mob-serv-title'), servDesc:g('mob-serv-desc'), contactTitle:g('mob-contact-title'), contactValue:g('mob-contact-value') };
+  try { localStorage.setItem('sa_mobile_styles', JSON.stringify(s)); } catch(e) {}
+  applyMobileStyles();
+  return s;
+}
+function loadMobileStyles() {
+  try { const raw = localStorage.getItem('sa_mobile_styles'); return raw ? JSON.parse(raw) : {}; } catch(e) { return {}; }
+}
+function populateMobileStyleInputs() {
+  const s = loadMobileStyles();
+  const map = { 'mob-hero-title':s.heroTitle, 'mob-proj-title':s.projTitle, 'mob-proj-name':s.projName, 'mob-proj-desc':s.projDesc, 'mob-about-title':s.aboutTitle, 'mob-about-body':s.aboutBody, 'mob-serv-title':s.servTitle, 'mob-serv-desc':s.servDesc, 'mob-contact-title':s.contactTitle, 'mob-contact-value':s.contactValue };
+  for (const [id, val] of Object.entries(map)) {
+    const el = document.getElementById(id);
+    if (el && val) { el.value = val; const label = document.getElementById(id + '-val'); if (label) label.textContent = val + 'rem'; }
+  }
+}
+
 function populateStyleInputs() {
   const s = loadAdvancedStyles();
   const map = {
@@ -3234,6 +3391,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadFontSizes();
   loadColors();
   applyAdvancedStyles();
+  applyMobileStyles();
+  loadFormOptions();
   loadContactInfo();
   initCursor();
   initNav();
