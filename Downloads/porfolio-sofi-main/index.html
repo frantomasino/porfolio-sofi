@@ -311,7 +311,7 @@ section { position:relative; }
 .lb-close:hover { border-color:var(--white); color:var(--white); }
 .lb-stage { flex:1; display:flex; align-items:center; justify-content:center; position:relative; padding:2rem 5rem; overflow:hidden; }
 .lb-stage img { max-width:100%; max-height:100%; object-fit:contain; transition:opacity .25s; }
-.lb-nav { position:absolute; top:50%; transform:translateY(-50%); background:none; border:none; color:#2a2a2a; font-size:2rem; padding:1.5rem; transition:color .2s; }
+.lb-nav { position:absolute; top:50%; transform:translateY(-50%); background:rgba(0,0,0,.5); border:none; color:var(--white); font-size:2rem; padding:1.5rem; transition:color .2s; border-radius:50%; }
 .lb-nav:hover { color:var(--white); }
 .lb-nav.left  { left:.5rem; }
 .lb-nav.right { right:.5rem; }
@@ -543,6 +543,8 @@ section { position:relative; }
   .lb-bar   { padding:1rem 1.5rem; flex-direction:column; gap:1rem; }
   .lb-stage { padding:1rem 2.5rem; }
   .lb-strip { padding:.75rem 1.5rem; }
+  .lb-nav { color:#888 !important; font-size:1.5rem; padding:1rem; }
+  .lb-nav:hover, .lb-nav:active { color:var(--white) !important; }
 
   .admin-proj-fields { grid-template-columns:1fr 1fr; grid-template-rows:auto auto; }
   .login-box { min-width:unset; width:90vw; padding:2.5rem 1.5rem; }
