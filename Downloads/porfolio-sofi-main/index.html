@@ -1749,7 +1749,13 @@ function cardGoTo(e,i,idx) {
 }
 function _updateCard(i,cur,total) {
   const slider = document.getElementById(`ps-${i}`);
-  if (slider) slider.style.transform=`translateX(-${cur*100}%)`;
+  if (slider) {
+    if (window.innerWidth <= 768) {
+      slider.scrollTo({ left: cur * slider.clientWidth, behavior: 'smooth' });
+    } else {
+      slider.style.transform=`translateX(-${cur*100}%)`;
+    }
+  }
   const card = document.getElementById(`pc-${i}`);
   if (!card) return;
   const badge = card.querySelector('.proj-badge');
