@@ -411,6 +411,10 @@ section { position:relative; }
 .admin-tab-btn { background:transparent; border:1px solid #DDDBD6; color:var(--gray); padding:.6rem 1.25rem; font-size:10px; letter-spacing:.1em; text-transform:uppercase; font-family:var(--font-body); cursor:pointer; transition:border-color .2s, color .2s, background .2s; white-space:nowrap; }
 .admin-tab-btn:hover { border-color:var(--gold); color:var(--gold); }
 .admin-tab-btn.active { background:var(--ink); border-color:var(--ink); color:var(--white); }
+.tab-desktop-hint { opacity:.6; }
+@media (max-width:768px) {
+  .tab-desktop-hint { display:none; }
+}
 @media (max-width:768px) {
   .admin-header { padding:1.25rem 1.25rem; }
   .admin-title { font-size:1.4rem; }
@@ -662,7 +666,7 @@ section { position:relative; }
     <!-- Pestañas del panel -->
     <div class="admin-tabs" id="admin-tabs">
       <button class="admin-tab-btn active" data-tab="contenido" onclick="switchAdminTab('contenido')">📝 Contenido</button>
-      <button class="admin-tab-btn" data-tab="diseno" onclick="switchAdminTab('diseno')">🎨 Diseño</button>
+      <button class="admin-tab-btn" data-tab="diseno" onclick="switchAdminTab('diseno')">🎨 Diseño<span class="tab-desktop-hint"> (escritorio)</span></button>
       <button class="admin-tab-btn" data-tab="mobile" onclick="switchAdminTab('mobile')">📱 Mobile</button>
     </div>
 
