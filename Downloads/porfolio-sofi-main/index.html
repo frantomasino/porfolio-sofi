@@ -1758,6 +1758,16 @@ function readFileAsDataURL(file) {
 ════════════════════════════════════════════════════════ */
 let lbProjIdx = 0, lbPhotoIdx = 0;
 
+function applyProjectsMobilePos(visibleProjects) {
+  let el = document.getElementById('sa-proj-pos');
+  if (!el) { el = document.createElement('style'); el.id = 'sa-proj-pos'; document.head.appendChild(el); }
+  const rules = visibleProjects.map((p,i) => {
+    if (!p.imgPosX && !p.imgPosY) return '';
+    return `#pc-${i} .proj-slide img { object-position: ${p.imgPosX||'center'} ${p.imgPosY||'center'} !important; }`;
+  }).filter(Boolean).join('\n');
+  el.textContent = rules ? `@media (max-width:768px) {\n${rules}\n}` : '';
+}
+
 function renderGrid() {
   const grid = document.getElementById('projects-grid');
   const n = projects.length;
@@ -1767,6 +1777,7 @@ function renderGrid() {
   initHero();
 
   const visibleProjects = projects.filter(p => !p.hidden);
+  applyProjectsMobilePos(visibleProjects);
   grid.innerHTML = visibleProjects.map((p,i) => {
     const photos = p.photos||[];
     const cur    = cardIdx[i]||0;
@@ -1777,7 +1788,7 @@ function renderGrid() {
       <div class="proj-card" id="pc-${i}">
         <div class="proj-slider" id="ps-${i}" style="transform:translateX(-${cur*100}%)">
           ${total>0
-            ? photos.map(src=>`<div class="proj-slide"><img src="${src}" alt="${esc(p.name)}" loading="lazy" style="object-position:${p.imgPosX||'center'} ${p.imgPosY||'center'}"/></div>`).join('')
+            ? photos.map(src=>`<div class="proj-slide"><img src="${src}" alt="${esc(p.name)}" loading="lazy"/></div>`).join('')
             : `<div class="proj-slide"><div class="proj-empty"><p class="proj-empty-lbl">Sin imágenes</p></div></div>`
           }
         </div>
@@ -1999,12 +2010,12 @@ function renderAdminList() {
       <div style="margin-bottom:1.25rem">
         <span class="admin-field-label" style="display:block;margin-bottom:.5rem">Posición de imagen en mobile — solo mobile (horizontal · vertical)</span>
         <div style="display:flex;gap:1rem;align-items:center">
-          <select class="admin-field" style="max-width:160px" onchange="projects[${i}].imgPosX=this.value">
+          <select class="admin-field" style="max-width:160px" onchange="projects[${i}].imgPosX=this.value;renderGrid()">
             <option value="center" ${(p.imgPosX||'center')==='center'?'selected':''}>Centro</option>
             <option value="left" ${(p.imgPosX||'center')==='left'?'selected':''}>Izquierda</option>
             <option value="right" ${(p.imgPosX||'center')==='right'?'selected':''}>Derecha</option>
           </select>
-          <select class="admin-field" style="max-width:160px" onchange="projects[${i}].imgPosY=this.value">
+          <select class="admin-field" style="max-width:160px" onchange="projects[${i}].imgPosY=this.value;renderGrid()">
             <option value="center" ${(p.imgPosY||'center')==='center'?'selected':''}>Centro</option>
             <option value="top" ${(p.imgPosY||'center')==='top'?'selected':''}>Arriba</option>
             <option value="bottom" ${(p.imgPosY||'center')==='bottom'?'selected':''}>Abajo</option>
