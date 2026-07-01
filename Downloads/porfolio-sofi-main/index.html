@@ -479,7 +479,8 @@ select.admin-field { appearance:none; -webkit-appearance:none; -moz-appearance:n
 /* Fotos */
 .admin-photos-label { font-size:8px; letter-spacing:.18em; text-transform:uppercase; color:#888888; margin-bottom:.75rem; }
 .admin-photos-grid  { display:flex; flex-wrap:wrap; gap:.75rem; align-items:flex-start; }
-.photo-thumb-wrap { position:relative; width:110px; height:80px; flex-shrink:0; }
+.photo-thumb-wrap { position:relative; width:110px; height:80px; flex-shrink:0; cursor:grab; }
+.photo-thumb-wrap:active { cursor:grabbing; }
 .photo-thumb-wrap img { width:110px; height:80px; object-fit:cover; display:block; }
 .photo-thumb-wrap.is-cover img { outline:2px solid var(--gold); }
 .photo-cover-badge { position:absolute; bottom:0; left:0; right:0; background:rgba(196,162,101,.9); font-size:7px; letter-spacing:.1em; text-transform:uppercase; text-align:center; padding:.2rem; color:var(--ink); }
@@ -2061,12 +2062,16 @@ function renderAdminList() {
         </div>
       </div>
       <p class="admin-photos-label">
-        Fotos (${(p.photos||[]).length}) — primera foto = portada · ★ para cambiar portada
+        Fotos (${(p.photos||[]).length}) — primera foto = portada · ★ para cambiar portada · arrastrá para reordenar
         ${CLOUDINARY_CONFIGURED?'· ☁️ Se suben a Cloudinary':'· ⚠️ Sin Cloudinary (solo local)'}
       </p>
       <div class="admin-photos-grid" id="photos-grid-${i}">
         ${(p.photos||[]).map((src,j)=>`
-          <div class="photo-thumb-wrap ${j===0?'is-cover':''}">
+          <div class="photo-thumb-wrap ${j===0?'is-cover':''}" draggable="true"
+            ondragstart="photoDragStart(event,${i},${j})"
+            ondragover="photoDragOver(event)"
+            ondrop="photoDrop(event,${i},${j})"
+            ondragend="photoDragEnd(event)">
             <img src="${src}" alt="Foto ${j+1}"/>
             ${j===0
               ?'<div class="photo-cover-badge">Portada</div>'
@@ -2144,6 +2149,32 @@ function setCover(projIdx, photoIdx) {
   const [photo]=projects[projIdx].photos.splice(photoIdx,1);
   projects[projIdx].photos.unshift(photo);
   renderAdminList();
+}
+
+/* ── REORDENAR FOTOS ARRASTRANDO ── */
+let _dragPhoto = null; // { projIdx, photoIdx }
+
+function photoDragStart(e, projIdx, photoIdx) {
+  _dragPhoto = { projIdx, photoIdx };
+  e.currentTarget.style.opacity = '.4';
+  e.dataTransfer.effectAllowed = 'move';
+}
+function photoDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+}
+function photoDrop(e, projIdx, photoIdx) {
+  e.preventDefault();
+  if (!_dragPhoto || _dragPhoto.projIdx !== projIdx || _dragPhoto.photoIdx === photoIdx) return;
+  const photos = projects[projIdx].photos;
+  const [moved] = photos.splice(_dragPhoto.photoIdx, 1);
+  photos.splice(photoIdx, 0, moved);
+  markAdminDirty();
+  renderAdminList();
+}
+function photoDragEnd(e) {
+  e.currentTarget.style.opacity = '';
+  _dragPhoto = null;
 }
 
 /* ── FOTO NOSOTROS ── */
