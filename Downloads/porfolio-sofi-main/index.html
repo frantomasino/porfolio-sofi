@@ -406,6 +406,14 @@ section { position:relative; }
 .admin-close  { background:none; border:1px solid #DDDBD6; color:var(--gray); padding:.5rem 1.25rem; font-size:9px; letter-spacing:.15em; text-transform:uppercase; transition:border-color .2s, color .2s; font-family:var(--font-body); }
 .admin-close:hover { border-color:var(--ink); color:var(--ink); }
 .admin-section-label { font-size:9px; letter-spacing:.25em; text-transform:uppercase; color:var(--gold); margin-bottom:1.25rem; display:block; }
+.admin-tabs { display:flex; gap:.5rem; margin-bottom:0; }
+.admin-tab-btn { background:transparent; border:1px solid #DDDBD6; color:var(--gray); padding:.6rem 1.5rem; font-size:10px; letter-spacing:.15em; text-transform:uppercase; font-family:var(--font-body); cursor:pointer; transition:border-color .2s, color .2s, background .2s; }
+.admin-tab-btn:hover { border-color:var(--gold); color:var(--gold); }
+.admin-tab-btn.active { background:var(--ink); border-color:var(--ink); color:var(--white); }
+.admin-tab-pane { display:block; }
+.admin-unsaved-badge { display:none; align-items:center; gap:.4rem; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#b8863b; background:#fbf1de; border:1px solid #e8cf9d; padding:.4rem .8rem; }
+.admin-unsaved-badge.show { display:inline-flex; }
+.admin-unsaved-badge::before { content:'●'; font-size:8px; }
 .admin-sep { border:none; border-top:1px solid #DDDBD6; margin:2.5rem 0; }
 
 /* Cloudinary notice */
@@ -594,6 +602,7 @@ section { position:relative; }
           style="background:none;border:1px solid #DDDBD6;color:var(--gray);padding:.5rem 1rem;font-size:9px;letter-spacing:.15em;text-transform:uppercase;font-family:var(--font-body);white-space:nowrap;cursor:pointer">
           ✕ Cerrar
         </button>
+        <span class="admin-unsaved-badge" id="admin-unsaved-badge">Cambios sin guardar</span>
         <span class="admin-msg" id="admin-msg-top" style="margin:0"></span>
       </div>
     </div>
@@ -630,7 +639,16 @@ section { position:relative; }
       <strong>Pasos:</strong> 1) Creá cuenta en cloudinary.com → 2) Dashboard → copiá Cloud Name → 3) Settings → Upload → Add upload preset (Unsigned) → copiá el nombre → 4) Pegalo en el código.
     </div>
 
+    <!-- Pestañas del panel -->
+    <div class="admin-tabs" id="admin-tabs">
+      <button class="admin-tab-btn active" data-tab="contenido" onclick="switchAdminTab('contenido')">📝 Contenido</button>
+      <button class="admin-tab-btn" data-tab="diseno" onclick="switchAdminTab('diseno')">🎨 Diseño (escritorio)</button>
+      <button class="admin-tab-btn" data-tab="mobile" onclick="switchAdminTab('mobile')">📱 Mobile</button>
+    </div>
+
     <hr class="admin-sep"/>
+
+    <div class="admin-tab-pane" data-tab="contenido">
 
     <!-- Hero principal -->
     <span class="admin-section-label">Portada — Imagen o video de entrada</span>
@@ -667,7 +685,7 @@ section { position:relative; }
       </div>
     </div>
     <div style="margin-bottom:1.5rem">
-      <span class="admin-field-label" style="display:block;margin-bottom:.75rem">Video de fondo (MP4 · máx 50MB · recomendado horizontal)</span>
+      <span class="admin-field-label" style="display:block;margin-bottom:.75rem">Video de fondo (MP4 · máx 100MB · recomendado horizontal)</span>
       <div style="display:flex;align-items:center;gap:1rem">
         <input type="file" accept="video/mp4,video/webm" class="file-input" id="hero-video-file"
           onchange="handleHeroVideo(event)"/>
@@ -678,7 +696,7 @@ section { position:relative; }
         <button class="upload-btn-sm" id="hero-video-remove" style="display:none;color:#c07070;border-color:#c07070"
           onclick="removeHeroVideo()">✕ Quitar video</button>
       </div>
-      <p style="font-size:10px;color:#aaa;margin-top:.4rem">Si hay video, se reproduce en loop sin sonido. Las fotos se usan como fallback si no hay video.</p>
+      <p style="font-size:10px;color:#aaa;margin-top:.4rem">Si hay video, se reproduce en loop sin sonido. Las fotos se usan como fallback si no hay video. El video se aloja en Cloudinary, igual que las fotos.</p>
     </div>
 
     <div style="margin-bottom:2rem">
@@ -695,7 +713,11 @@ section { position:relative; }
       </div>
     </div>
 
+    </div><!-- /pane contenido parte 1 -->
+
     <hr class="admin-sep"/>
+
+    <div class="admin-tab-pane" data-tab="diseno" style="display:none">
 
     <!-- Estilos avanzados -->
     <span class="admin-section-label">Estilos avanzados — Tamaños y espaciados</span>
@@ -839,7 +861,11 @@ section { position:relative; }
     </div>
 
 
+    </div><!-- /pane diseno (escritorio) -->
+
     <hr class="admin-sep"/>
+
+    <div class="admin-tab-pane" data-tab="mobile" style="display:none">
 
     <!-- Estilos Mobile -->
     <span class="admin-section-label">Estilos mobile — Tamaños en pantalla chica (solo mobile)</span>
@@ -920,7 +946,11 @@ section { position:relative; }
       </div>
     </div>
 
+    </div><!-- /pane mobile -->
+
     <hr class="admin-sep"/>
+
+    <div class="admin-tab-pane" data-tab="diseno">
 
     <!-- Colores -->
     <span class="admin-section-label">Colores del sitio</span>
@@ -1197,7 +1227,11 @@ section { position:relative; }
       </div>
     </div>
 
+    </div><!-- /pane diseno -->
+
     <hr class="admin-sep"/>
+
+    <div class="admin-tab-pane" data-tab="contenido">
 
     <!-- Foto Nosotros -->
     <span class="admin-section-label">Foto — Sección Nosotros</span>
@@ -1339,6 +1373,8 @@ section { position:relative; }
     <span class="admin-section-label">Proyectos</span>
     <div class="admin-proj-list" id="admin-proj-list"></div>
     <button class="add-proj-btn" onclick="addProject()">+ Agregar proyecto</button>
+
+    </div><!-- /pane contenido parte 2 -->
 
     <button class="save-btn" onclick="saveAll()">Guardar todos los cambios</button>
     <p class="admin-msg" id="admin-msg"></p>
@@ -1585,6 +1621,44 @@ async function uploadToCloudinary(file, onProgress) {
   });
 }
 
+/* Subida de VIDEO a Cloudinary (endpoint distinto al de imágenes).
+   Antes el video se guardaba como base64 en localStorage, lo que
+   rompía con archivos reales por el límite de tamaño del navegador.
+   Ahora queda alojado en Cloudinary igual que las fotos. */
+async function uploadVideoToCloudinary(file, onProgress) {
+  if (!CLOUDINARY_CONFIGURED) {
+    return await readFileAsDataURL(file);
+  }
+
+  const fd = new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+  fd.append('folder', 'portfolio');
+  fd.append('resource_type', 'video');
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/video/upload`);
+
+    xhr.upload.onprogress = e => {
+      if (e.lengthComputable && onProgress)
+        onProgress(Math.round((e.loaded / e.total) * 100));
+    };
+
+    xhr.onload = () => {
+      if (xhr.status === 200) {
+        const res = JSON.parse(xhr.responseText);
+        const url = res.secure_url.replace('/upload/', '/upload/q_auto/');
+        resolve(url);
+      } else {
+        reject(new Error(`Cloudinary error ${xhr.status} al subir el video`));
+      }
+    };
+    xhr.onerror = () => reject(new Error('Error de red al subir el video'));
+    xhr.send(fd);
+  });
+}
+
 /* ════════════════════════════════════════════════════════
    DATA
 ════════════════════════════════════════════════════════ */
@@ -1822,6 +1896,8 @@ function checkLogin() {
 }
 function openAdmin() {
   document.getElementById('admin-overlay').classList.add('open');
+  switchAdminTab('contenido');
+  markAdminClean();
   renderAdminList();
   const t=document.getElementById('about-thumb-preview');
   if (aboutImg) { t.src=aboutImg; t.style.display='block'; }
@@ -1839,13 +1915,51 @@ function openAdmin() {
     CLOUDINARY_CONFIGURED ? 'none' : 'block';
 }
 function closeAdmin() {
+  if (adminHasUnsavedChanges) {
+    const ok = confirm('Tenés cambios sin guardar. ¿Cerrar de todos modos y perderlos?');
+    if (!ok) return;
+  }
   document.getElementById('admin-overlay').classList.remove('open');
   const panel = document.getElementById('mobile-preview-panel');
   if (panel) panel.style.display = 'none';
   mobilePreviewOpen = false;
   const btn = document.getElementById('mobile-preview-btn');
   if (btn) { btn.style.borderColor = ''; btn.style.color = ''; }
+  markAdminClean();
 }
+
+/* ── PESTAÑAS DEL PANEL ── */
+function switchAdminTab(tab) {
+  document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.querySelectorAll('.admin-tab-pane').forEach(p => p.style.display = (p.dataset.tab === tab ? 'block' : 'none'));
+}
+
+/* ── CAMBIOS SIN GUARDAR ── */
+let adminHasUnsavedChanges = false;
+function markAdminDirty() {
+  adminHasUnsavedChanges = true;
+  const b = document.getElementById('admin-unsaved-badge');
+  if (b) b.classList.add('show');
+}
+function markAdminClean() {
+  adminHasUnsavedChanges = false;
+  const b = document.getElementById('admin-unsaved-badge');
+  if (b) b.classList.remove('show');
+}
+// Marca como "sucio" cualquier cambio dentro del panel admin (inputs, selects, textareas, subida de archivos)
+document.addEventListener('input', e => {
+  if (e.target.closest && e.target.closest('#admin-overlay')) markAdminDirty();
+});
+document.addEventListener('change', e => {
+  if (e.target.closest && e.target.closest('#admin-overlay')) markAdminDirty();
+});
+// Avisar antes de cerrar la pestaña/navegador si hay cambios sin guardar
+window.addEventListener('beforeunload', e => {
+  if (adminHasUnsavedChanges) {
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
 
 /* ── RENDER ADMIN LIST ── */
 function renderAdminList() {
@@ -2356,28 +2470,34 @@ async function handleHeroVideo(e) {
   const file = e.target.files[0]; if (!file) return;
   const status = document.getElementById('hero-video-status');
   const rmBtn  = document.getElementById('hero-video-remove');
-  status.textContent = 'Subiendo video…';
 
-  // Video goes directly as base64 (Cloudinary free doesn't include video transforms)
-  // For large files warn user
-  if (file.size > 50 * 1024 * 1024) {
-    status.textContent = '⚠ El video supera 50MB. Comprimilo primero.';
+  if (file.size > 100 * 1024 * 1024) {
+    status.textContent = '⚠ El video supera 100MB. Comprimilo primero.';
+    e.target.value = '';
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = ev => {
+  status.textContent = 'Subiendo video… 0%';
+  try {
+    const url = await uploadVideoToCloudinary(file, pct => {
+      status.textContent = `Subiendo video… ${pct}%`;
+    });
     const d = loadHeroData();
-    d.videoUrl = ev.target.result;
+    d.videoUrl = url;
     saveHeroData(d);
-    status.textContent = '✓ Video guardado localmente.';
+    currentHeroData = d;
+    status.textContent = CLOUDINARY_CONFIGURED
+      ? '✓ Video subido a Cloudinary.'
+      : '✓ Video guardado (sin Cloudinary, solo en este navegador).';
     if (rmBtn) rmBtn.style.display = '';
     // Update live
     const vid = document.getElementById('hero-video');
-    if (vid) { vid.style.display='block'; vid.src=ev.target.result; vid.addEventListener('canplay', ()=>vid.classList.add('loaded'),{once:true}); }
-    document.getElementById('admin-msg').textContent = '✓ Video cargado. Guardá los cambios.';
-  };
-  reader.readAsDataURL(file);
+    if (vid) { vid.style.display='block'; vid.src=url; vid.addEventListener('canplay', ()=>vid.classList.add('loaded'),{once:true}); }
+    document.getElementById('admin-msg').textContent = '✓ Video cargado. Guardá los cambios para publicarlo.';
+    markAdminDirty();
+  } catch(err) {
+    status.textContent = `⚠ ${err.message}`;
+  }
   e.target.value = '';
 }
 
@@ -2385,12 +2505,14 @@ function removeHeroVideo() {
   const d = loadHeroData();
   delete d.videoUrl;
   saveHeroData(d);
+  currentHeroData = d;
   const vid = document.getElementById('hero-video');
   if (vid) { vid.src=''; vid.style.display='none'; vid.classList.remove('loaded'); }
   const rmBtn  = document.getElementById('hero-video-remove');
   const status = document.getElementById('hero-video-status');
   if (rmBtn)  rmBtn.style.display = 'none';
   if (status) status.textContent = '';
+  markAdminDirty();
 }
 
 async function handleHeroPhotos(e) {
@@ -2663,10 +2785,11 @@ async function saveAll() {
   renderServicesGrid();
 
   const finalMsg = ok
-    ? '✓ Guardado en la nube. Se ve igual en todos los dispositivos.'
+    ? `✓ Guardado en la nube (${new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'})}). Se ve igual en todos los dispositivos.`
     : '⚠ Error al guardar. Abrí la consola del navegador (F12) para ver el error.';
   msg.textContent = finalMsg;
   if (msgTop) msgTop.textContent = finalMsg;
+  if (ok) markAdminClean();
   setTimeout(() => { msg.textContent = ''; if (msgTop) msgTop.textContent = ''; }, 4000);
 }
 
